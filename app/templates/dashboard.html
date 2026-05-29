@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}仪表盘 — 考研学习系统{% endblock %}
+
+{% block content %}
+<div class="row g-4 align-items-stretch">
+    <!-- ===== 左侧栏 ===== -->
+    <div class="col-lg-4">
+        <div class="d-flex flex-column h-100">
+            <!-- 高校图片 -->
+            <div class="rounded-4 overflow-hidden flex-grow-1 position-relative" style="min-height: 280px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);" id="dash-img-box">
+                <img src="{{ dashboard_img }}" id="dash-img" style="width:100%;height:100%;object-fit:cover;">
+                {% if dash_urls|length > 1 %}
+                <button class="btn btn-sm btn-dark position-absolute bottom-0 end-0 m-2 rounded-pill opacity-50"
+                        onclick='cycleImg("dash-img","dash-img-box",{{ dash_urls|tojson }})' style="font-size:0.7rem;">
+                    <i class="bi bi-images me-1"></i>切换壁纸
+                </button>
+                {% endif %}
+            </div>
+            <!-- 倒计时 -->
+            <div class="card mt-3">
+                <div class="card-body text-center py-4">
+                    {% if countdown_days > 0 %}
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">距离考研</div>
+                        <div style="font-size: 2.8rem; font-weight: 800; color: var(--coral); line-height: 1.2;">{{ countdown_days }}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">天 · {{ countdown_date }}</div>
+                    {% elif countdown_days == 0 %}
+                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--coral);">今天考研！</div>
+                    {% else %}
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">考研已过去</div>
+                        <div style="font-size: 2.8rem; font-weight: 800; color: var(--green); line-height: 1.2;">{{ -countdown_days }}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">天 · {{ countdown_date }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- 用户信息 -->
+            <div class="card mt-3">
+                <div class="card-body py-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--coral));
+                                    display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 1.1rem;">
+                            {{ (current_user.nickname or current_user.username)[0] | upper }}
+                        </div>
+                        <div>
+                            <div class="fw-bold">{{ current_user.nickname or current_user.username }}</div>
+                            <div class="small" style="color: var(--text-muted);">
+                                {% if current_user.target_school %}{{ current_user.target_school }}{% else %}未设置目标院校{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 右侧栏 ===== -->
+    <div class="col-lg-8">
+        <div class="d-flex flex-column h-100">
+            <!-- 欢迎 + 统计 -->
+            <div>
+                <div class="mb-3 row align-items-center">
+                    <div class="col-md-7">
+                        <h4 class="fw-bold mb-1" style="color: var(--text);">下午好，{{ current_user.nickname or current_user.username }}</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0;">
+                            {% if today_minutes > 0 %}
+                                今天已专注 <strong style="color: var(--coral);">{{ today_minutes }}</strong> 分钟，做了 <strong style="color: var(--coral);">{{ today_questions }}</strong> 道题
+                            {% else %}
+                                新的一天，从刷一道题开始吧
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if daily_quote %}
+                    <div class="col-md-5 text-md-end mt-2 mt-md-0">
+                        <div class="fst-italic" style="color: var(--gold); font-size: 1.1rem; font-weight: 500;">
+                            「{{ daily_quote }}」
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- 统计卡片 -->
+                <div class="row g-2 mb-3">
+                    <div class="col-6 col-md-3">
+                        <a href="{{ url_for('timer.timer_page') }}" class="stat-card">
+                            <div class="stat-icon" style="background: #F0F7EF; color: #5B9A5A;"><i class="bi bi-hourglass-split"></i></div>
+                            <div class="stat-value" style="color: #5B9A5A;">{{ today_minutes }}</div>
+                            <div class="stat-label">今日专注 · 分钟</div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a href="{{ url_for('mistake.list_mistakes') }}" class="stat-card">
+                            <div class="stat-icon" style="background: #FDF3F2; color: #D1524A;"><i class="bi bi-exclamation-triangle"></i></div>
+                            <div class="stat-value" style="color: #D1524A;">{{ mistake_due }}</div>
+                            <div class="stat-label">待复习错题</div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a href="{{ url_for('vocab.list_words') }}" class="stat-card">
+                            <div class="stat-icon" style="background: #F0F5FA; color: #4A8FC8;"><i class="bi bi-book"></i></div>
+                            <div class="stat-value" style="color: #4A8FC8;">{{ vocab_due }}</div>
+                            <div class="stat-label">待复习单词</div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a href="{{ url_for('exam.list_questions') }}" class="stat-card">
+                            <div class="stat-icon" style="background: #FFF8E7; color: #E8A817;"><i class="bi bi-check2-circle"></i></div>
+                            <div class="stat-value" style="color: #E8A817;">{{ today_questions }}</div>
+                            <div class="stat-label">今日做题</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能入口 -->
+            <div class="flex-grow-1 d-flex flex-column">
+                <h6 class="fw-bold mb-2" style="color: var(--text-secondary); font-size: 0.85rem;">快速开始</h6>
+                <div class="row g-2 flex-grow-1">
+                    <div class="col-4 d-flex">
+                        <a href="{{ url_for('exam.practice') }}" class="feature-entry text-center d-flex flex-column justify-content-center align-items-center w-100">
+                            <div class="fe-icon mx-auto" style="background: #FFF8E7; color: #E8A817;"><i class="bi bi-pencil-square"></i></div>
+                            <div class="fe-title">开始做题</div>
+                            <div class="fe-desc">逐题练习</div>
+                        </a>
+                    </div>
+                    <div class="col-4 d-flex">
+                        <a href="{{ url_for('mistake.review') }}" class="feature-entry text-center d-flex flex-column justify-content-center align-items-center w-100">
+                            <div class="fe-icon mx-auto" style="background: #FDF3F2; color: #D1524A;"><i class="bi bi-arrow-repeat"></i></div>
+                            <div class="fe-title">复习错题</div>
+                            <div class="fe-desc">记忆曲线</div>
+                        </a>
+                    </div>
+                    <div class="col-4 d-flex">
+                        <a href="{{ url_for('vocab.learn') }}" class="feature-entry text-center d-flex flex-column justify-content-center align-items-center w-100">
+                            <div class="fe-icon mx-auto" style="background: #F0F5FA; color: #4A8FC8;"><i class="bi bi-lightbulb"></i></div>
+                            <div class="fe-title">背单词</div>
+                            <div class="fe-desc">学习+复习</div>
+                        </a>
+                    </div>
+                    <div class="col-4 d-flex mt-2">
+                        <a href="{{ url_for('timer.timer_page') }}" class="feature-entry text-center d-flex flex-column justify-content-center align-items-center w-100">
+                            <div class="fe-icon mx-auto" style="background: #F0F7EF; color: #5B9A5A;"><i class="bi bi-alarm"></i></div>
+                            <div class="fe-title">专注计时</div>
+                            <div class="fe-desc">番茄钟</div>
+                        </a>
+                    </div>
+                    <div class="col-4 d-flex mt-2">
+                        <a href="{{ url_for('note.list_notes') }}" class="feature-entry text-center d-flex flex-column justify-content-center align-items-center w-100">
+                            <div class="fe-icon mx-auto" style="background: #FDF6F0; color: #E8734A;"><i class="bi bi-journal-text"></i></div>
+                            <div class="fe-title">笔记</div>
+                            <div class="fe-desc">富文本</div>
+                        </a>
+                    </div>
+                    <div class="col-4 d-flex mt-2">
+                        <a href="{{ url_for('import_data.import_page') }}" class="feature-entry text-center d-flex flex-column justify-content-center align-items-center w-100">
+                            <div class="fe-icon mx-auto" style="background: #FFF0F5; color: #D4688A;"><i class="bi bi-upload"></i></div>
+                            <div class="fe-title">导入题目</div>
+                            <div class="fe-desc">粘贴+Excel</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

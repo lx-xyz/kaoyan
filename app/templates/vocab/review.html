@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}单词复习 — 考研学习系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-pencil-square me-2" style="color: #FFA000;"></i>单词复习</h4>
+    <span class="badge bg-warning text-dark fs-6">待复习 {{ counts.due }} 个</span>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4 text-center">
+                <div class="mb-2">
+                    <span class="badge bg-info me-2">阶段 {{ word.review_stage }}</span>
+                    <span class="badge bg-light text-dark">复习 {{ word.review_count }} 次</span>
+                </div>
+                <div class="my-4" style="font-size: 2.2rem; font-weight: bold; color: #333;">{{ word.word }}</div>
+                {% if word.phonetic %}<div class="text-muted mb-4">{{ word.phonetic }}</div>{% endif %}
+
+                <form method="POST" action="{{ url_for('vocab.review_action', word_id=word.id) }}" class="d-flex gap-3 justify-content-center">
+                    <button type="submit" name="result" value="wrong" class="btn btn-lg px-5" style="background:#F44336;color:#fff;">
+                        <i class="bi bi-x-lg me-1"></i>不认识
+                    </button>
+                    <button type="submit" name="result" value="correct" class="btn btn-lg px-5" style="background:#4CAF50;color:#fff;">
+                        <i class="bi bi-check-lg me-1"></i>认识
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 justify-content-center">
+            <a href="{{ url_for('vocab.list_words') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list me-1"></i>单词列表</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

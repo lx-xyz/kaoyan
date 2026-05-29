@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}学习新词 — 考研学习系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 mx-auto text-center py-5">
+        <i class="bi bi-check-circle-fill" style="font-size: 4rem; color: #4CAF50;"></i>
+        <h4 class="mt-3" style="color: #4CAF50;">没有新词需要学习</h4>
+        <p class="text-muted">所有单词已进入复习周期。</p>
+        <div class="d-flex gap-2 justify-content-center mt-3">
+            <a href="{{ url_for('vocab.review') }}" class="btn btn-warning"
+               style="background-color: #FFA000; border-color: #FFA000; color: #fff;">
+                <i class="bi bi-arrow-repeat me-1"></i>去复习（{{ counts.due }} 待复习）
+            </a>
+            <a href="{{ url_for('vocab.add_word') }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>添加新词
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

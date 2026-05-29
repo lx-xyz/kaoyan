@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}导入 — 考研学习系统{% endblock %}
+{% block content %}
+<h3 class="fw-bold mb-4" style="color: var(--text);"><i class="bi bi-upload me-2" style="color: #E8A817;"></i>导入题目</h3>
+
+<ul class="nav nav-pills mb-4">
+    <li class="nav-item"><a class="nav-link active" data-bs-toggle="pill" href="#tab-paste"><i class="bi bi-clipboard-check me-1"></i>粘贴解析</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#tab-excel"><i class="bi bi-file-earmark-excel me-1"></i>Excel导入</a></li>
+</ul>
+
+<div class="tab-content">
+<div class="tab-pane fade show active" id="tab-paste">
+<form method="POST"><input type="hidden" name="parse" value="1">
+<div class="row g-2 mb-3">
+    <div class="col-md-3"><select name="subject_id" class="form-select" required><option value="">选择科目 *</option>
+    {% for s in subjects %}<option value="{{s.id}}" {% if subject_id==s.id %}selected{% endif %}>{{s.name}}</option>{% endfor %}</select></div>
+    <div class="col-md-2"><input type="number" name="year" class="form-control" placeholder="年份" value="{{year or ''}}"></div>
+    <div class="col-md-4"><input type="text" name="source" class="form-control" placeholder="来源" value="{{source or ''}}"></div>
+    <div class="col-md-3 text-end"><button class="btn btn-primary w-100"><i class="bi bi-eye me-1"></i>预览解析</button></div>
+</div>
+<textarea name="raw_text" class="form-control" rows="10" placeholder="在此粘贴题目文本...&#10;&#10;示例：&#10;1. 题干？&#10;A. 选项A  B. 选项B  C. 选项C  D. 选项D&#10;答案：C&#10;解析：...">{{request.form.get('raw_text','')}}</textarea>
+</form>
+
+{% if parsed %}
+<form method="POST" class="mt-4"><input type="hidden" name="save_parsed" value="1">
+<input type="hidden" name="subject_id" value="{{subject_id}}"><input type="hidden" name="year" value="{{year or ''}}">
+<input type="hidden" name="source" value="{{source or ''}}"><input type="hidden" name="parsed_count" value="{{parsed|length}}">
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="fw-bold mb-0">识别到 {{parsed|length}} 道题</h6>
+    <div class="d-flex gap-2"><a href="{{url_for('import_data.import_page')}}" class="btn btn-outline-secondary btn-sm">取消</a>
+    <button class="btn btn-primary btn-sm"><i class="bi bi-check-lg me-1"></i>批量保存</button></div>
+</div>
+
+{% for q in parsed %}{% set qi = loop.index0 %}
+<div class="card mb-2"><div class="card-body py-2">
+    <input type="hidden" name="qtype_{{qi}}" value="{{q.question_type}}">
+    <span class="badge bg-secondary mb-2">第{{loop.index}}题 · {{q.question_type}}</span>
+    <textarea name="title_{{qi}}" class="form-control form-control-sm mb-1" rows="2">{{q.title}}</textarea>
+    <div class="row g-1 mb-1">
+        {% for l in ['A','B','C','D'] %}<div class="col-3"><div class="input-group input-group-sm"><span class="input-group-text" style="width:28px;justify-content:center;font-weight:600;">{{l}}</span><input name="opt_{{l.lower()}}_{{qi}}" class="form-control" value="{{q['option_'+l.lower()]}}"></div></div>{% endfor %}
+    </div>
+    <div class="row g-1"><div class="col-4"><input name="answer_{{qi}}" class="form-control form-control-sm" placeholder="答案" value="{{q.correct_answer}}"></div><div class="col-8"><input name="analysis_{{qi}}" class="form-control form-control-sm" placeholder="解析" value="{{q.analysis}}"></div></div>
+</div></div>
+{% endfor %}
+</form>
+{% endif %}
+</div>
+
+<div class="tab-pane fade" id="tab-excel">
+<div class="row g-4">
+    <div class="col-md-6"><div class="card"><div class="card-body p-4">
+        <h6 class="fw-bold mb-2"><i class="bi bi-journal-check me-1" style="color:#E8A817;"></i>导入真题</h6>
+        <p class="text-muted small mb-2">科目代码：english / math / ds / co / os / cn</p>
+        <a href="{{url_for('import_data.download_exam_template')}}" class="btn btn-sm btn-outline-primary mb-3"><i class="bi bi-download me-1"></i>下载模板</a>
+        <form method="POST" action="{{url_for('import_data.upload_import')}}" enctype="multipart/form-data">
+            <input type="hidden" name="type" value="exam">
+            <div class="input-group input-group-sm"><input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv" required><button class="btn btn-primary">上传</button></div>
+        </form>
+    </div></div></div>
+    <div class="col-md-6"><div class="card"><div class="card-body p-4">
+        <h6 class="fw-bold mb-2"><i class="bi bi-book me-1" style="color:#4A8FC8;"></i>导入单词</h6>
+        <p class="text-muted small mb-2">列：单词 / 音标 / 释义 / 例句 / 例句翻译 / 词性</p>
+        <a href="{{url_for('import_data.download_vocab_template')}}" class="btn btn-sm btn-outline-primary mb-3"><i class="bi bi-download me-1"></i>下载模板</a>
+        <form method="POST" action="{{url_for('import_data.upload_import')}}" enctype="multipart/form-data">
+            <input type="hidden" name="type" value="vocab">
+            <div class="input-group input-group-sm"><input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv" required><button class="btn btn-primary">上传</button></div>
+        </form>
+    </div></div></div>
+</div>
+</div>
+</div>
+
+{% if logs %}<div class="mt-5"><h6 class="fw-bold mb-3">导入历史</h6>
+<table class="table table-sm"><thead><tr><th>时间</th><th>类型</th><th>文件</th><th>总数</th><th>成功</th><th>失败</th></tr></thead>
+<tbody>{% for l in logs %}<tr><td>{{l.created_at.strftime('%m-%d %H:%M')}}</td><td>{% if l.import_type=='exam' %}真题{%else%}单词{%endif%}</td><td>{{l.file_name}}</td><td>{{l.total_rows}}</td><td class="text-success">{{l.success_rows}}</td><td class="text-danger">{{l.error_rows}}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
+{% endblock %}

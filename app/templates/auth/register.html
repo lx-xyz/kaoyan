@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}注册 — 考研学习系统{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h3 class="text-center mb-4 fw-bold" style="color: #333;">
+                    <i class="bi bi-person-plus me-2" style="color: #FFA000;"></i>注册账号
+                </h3>
+
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.username.label.text }}</label>
+                        {{ form.username(class="form-control", placeholder="2~64个字符") }}
+                        {% if form.username.errors %}
+                            <div class="text-danger mt-1" style="font-size: 0.85rem;">
+                                {% for e in form.username.errors %}{{ e }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.email.label.text }}</label>
+                        {{ form.email(class="form-control", placeholder="example@mail.com") }}
+                        {% if form.email.errors %}
+                            <div class="text-danger mt-1" style="font-size: 0.85rem;">
+                                {% for e in form.email.errors %}{{ e }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.password.label.text }}</label>
+                        {{ form.password(class="form-control", placeholder="至少6位密码") }}
+                        {% if form.password.errors %}
+                            <div class="text-danger mt-1" style="font-size: 0.85rem;">
+                                {% for e in form.password.errors %}{{ e }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.confirm_password.label.text }}</label>
+                        {{ form.confirm_password(class="form-control", placeholder="再次输入密码") }}
+                        {% if form.confirm_password.errors %}
+                            <div class="text-danger mt-1" style="font-size: 0.85rem;">
+                                {% for e in form.confirm_password.errors %}{{ e }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {{ form.submit(class="btn btn-warning w-100 fw-bold", style="background-color: #FFA000; border-color: #FFA000; color: #fff;") }}
+                </form>
+
+                <p class="text-center text-muted mt-3 mb-0">
+                    已有账号？
+                    <a href="{{ url_for('auth.login') }}" style="color: #FFA000;">立即登录</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

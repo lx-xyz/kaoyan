@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}答题结果 — 考研学习系统{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-5">
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4 text-center {% if is_correct %}" style="background-color: #E8F5E9;{% else %}" style="background-color: #FFEBEE;{% endif %}">
+                <div style="font-size: 2rem; font-weight: bold; color: #333;">{{ word.word }}</div>
+                {% if word.phonetic %}<div class="text-muted">{{ word.phonetic }}</div>{% endif %}
+                <hr>
+                <div style="font-size: 1.2rem; color: #555;">{{ word.meaning }}</div>
+                {% if not is_correct %}
+                <p class="mt-2 small text-muted">记一下：<strong style="color:#4CAF50;">{{ word.meaning }}</strong></p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 justify-content-center">
+            <a href="{{ url_for('vocab.review') }}" class="btn btn-warning" style="background-color: #FFA000; border-color: #FFA000; color: #fff;">
+                <i class="bi bi-arrow-right me-1"></i>下一词
+            </a>
+            {% if is_correct %}
+            <form method="POST" action="{{ url_for('vocab.review_action', word_id=word.id) }}">
+                <input type="hidden" name="result" value="wrong">
+                <button class="btn btn-outline-danger"><i class="bi bi-arrow-counterclockwise me-1"></i>记错了</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

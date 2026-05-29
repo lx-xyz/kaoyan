@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}题库 — 考研学习系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0" style="color: #333;">
+        <i class="bi bi-journal-check me-2" style="color: #FFA000;"></i>题库
+    </h3>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('import_data.import_page') }}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-upload me-1"></i>导入
+        </a>
+        <a href="{{ url_for('exam.create_question') }}" class="btn btn-warning btn-sm" style="background-color: #FFA000; border-color: #FFA000; color: #fff;">
+            <i class="bi bi-plus-lg me-1"></i>逐题录入
+        </a>
+    </div>
+</div>
+
+<!-- 筛选栏 -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body py-2">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-auto">
+                <select name="subject" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">全部科目</option>
+                    {% for s in subjects %}
+                        <option value="{{ s.id }}" {% if current_subject == s.id %}selected{% endif %}>{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">全部年份</option>
+                    {% for y in years %}
+                        <option value="{{ y }}" {% if current_year == y %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <select name="type" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">全部题型</option>
+                    {% for t in ['单选','多选','填空','解答','阅读','完形','翻译','写作','编程'] %}
+                        <option value="{{ t }}" {% if current_type == t %}selected{% endif %}>{{ t }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% if current_subject or current_year or current_type %}
+            <div class="col-auto">
+                <a href="{{ url_for('exam.list_questions') }}" class="btn btn-sm btn-outline-secondary">清除筛选</a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- 题目列表 -->
+{% if questions %}
+    <div class="list-group shadow-sm">
+        {% for q in questions %}
+        <a href="{{ url_for('exam.question_detail', question_id=q.id) }}" class="list-group-item list-group-item-action border-0 mb-1 rounded">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1 me-3">
+                    <div class="d-flex gap-2 align-items-center mb-1">
+                        <span class="badge" style="background-color: {{ q.subject.color if q.subject else '#FFA000' }}; color: #fff;">
+                            {{ q.subject.name if q.subject else '-' }}
+                        </span>
+                        <span class="badge bg-secondary">{{ q.question_type }}</span>
+                        {% if q.year %}<span class="badge bg-light text-dark">{{ q.year }}</span>{% endif %}
+                        {% if q.difficulty %}
+                            <span class="badge bg-light text-dark">
+                                {% if q.difficulty %}{% for _ in range(q.difficulty) %}★{% endfor %}{% endif %}
+                            </span>
+                        {% endif %}
+                    </div>
+                    <span style="color: #333; font-size: 0.95rem;">
+                        {{ q.title[:120] }}{% if q.title|length > 120 %}...{% endif %}
+                    </span>
+                </div>
+                <small class="text-muted text-nowrap">{{ q.created_at.strftime('%m-%d') }}</small>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- 分页 -->
+    {% if pagination.pages > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {{ 'disabled' if not pagination.has_prev }}">
+                <a class="page-link" href="?page={{ pagination.prev_num }}{% if current_subject %}&subject={{ current_subject }}{% endif %}{% if current_year %}&year={{ current_year }}{% endif %}">上一页</a>
+            </li>
+            {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if p %}
+                    <li class="page-item {{ 'active' if p == pagination.page }}">
+                        <a class="page-link" href="?page={{ p }}{% if current_subject %}&subject={{ current_subject }}{% endif %}{% if current_year %}&year={{ current_year }}{% endif %}" style="{% if p == pagination.page %}background-color: #FFA000; border-color: #FFA000;{% endif %}">{{ p }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+            <li class="page-item {{ 'disabled' if not pagination.has_next }}">
+                <a class="page-link" href="?page={{ pagination.next_num }}{% if current_subject %}&subject={{ current_subject }}{% endif %}{% if current_year %}&year={{ current_year }}{% endif %}">下一页</a>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+{% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-inbox" style="font-size: 3rem; color: #ddd;"></i>
+        <p class="text-muted mt-3">题库为空，点击"录入题目"添加第一道题吧！</p>
+    </div>
+{% endif %}
+{% endblock %}

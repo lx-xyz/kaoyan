@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考研学习系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #E8A817; --coral: #E8734A; --green: #5B9A5A;
+            --blue: #4A8FC8; --text: #2D2D2D; --text-secondary: #6B6B6B;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", serif;
+            color: var(--text); background: #fff; -webkit-font-smoothing: antialiased;
+        }
+
+        /* 导航栏 */
+        .top-nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: rgba(255,255,255,0.92); backdrop-filter: blur(12px);
+            border-bottom: 1px solid #EBE5D9; padding: 0.6rem 0;
+        }
+        .top-nav .brand { font-weight: 700; color: var(--gold); text-decoration: none; font-size: 1.1rem; }
+        .top-nav .nav-links { display: flex; gap: 0.8rem; align-items: center; margin-left: auto; padding-right: 0.5rem; }
+        .top-nav .nav-links a { text-decoration: none; font-weight: 500; font-size: 0.9rem;
+            padding: 0.4rem 1rem; border-radius: 20px; transition: all 0.15s; }
+        .btn-nav-primary { background: var(--gold); color: #fff !important; }
+        .btn-nav-primary:hover { background: #D69915; }
+        .btn-nav-outline { border: 1.5px solid var(--gold); color: var(--gold) !important; }
+        .btn-nav-outline:hover { background: #FFF8E7; }
+        .btn-nav-ghost { color: var(--text-secondary) !important; }
+        .btn-nav-ghost:hover { background: #f5f5f5; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+
+        /* 数据条 */
+        .stats-strip {
+            background: linear-gradient(135deg, #FFF8E7, #FFF3EB, #F0F7EF);
+            padding: 1.5rem 0; margin-top: 56px;
+        }
+        .stat-item { text-align: center; }
+        .stat-num { font-size: 2rem; font-weight: 800; }
+        .stat-label { font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem; }
+
+        /* Hero */
+        .hero-section {
+            position: relative; height: 70vh; min-height: 500px;
+            background: url('{{ images.hero }}') center/cover no-repeat;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .hero-section::before {
+            content: ''; position: absolute; inset: 0;
+            background: rgba(0,0,0,0.18);
+        }
+        .hero-content { position: relative; text-align: center; color: #fff; }
+
+        /* 艺术字标题 */
+        .hero-title {
+            font-family: "PingFang SC", "Microsoft YaHei", "Noto Serif SC", serif;
+            font-size: 3.5rem; font-weight: 900;
+            letter-spacing: 4px;
+            background: linear-gradient(180deg, #FFFFFF 0%, #FFE0B2 40%, #FFCC80 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+            margin-bottom: 0.5rem; line-height: 1.3;
+        }
+        .hero-subtitle {
+            font-size: 1.15rem; font-weight: 300; letter-spacing: 2px;
+            color: rgba(255,255,255,0.9); margin-bottom: 2rem;
+        }
+        .hero-subjects { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+        .hero-subjects span {
+            background: rgba(255,255,255,0.12); backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 20px;
+            padding: 0.35rem 1rem; font-size: 0.85rem;
+        }
+        .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .hero-btns a {
+            padding: 0.7rem 2.2rem; border-radius: 30px; font-weight: 600;
+            font-size: 1rem; text-decoration: none; transition: all 0.2s;
+        }
+        .btn-white { background: #fff; color: #333; }
+        .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
+        .btn-outline-white { border: 2px solid rgba(255,255,255,0.7); color: #fff; }
+        .btn-outline-white:hover { background: rgba(255,255,255,0.12); }
+
+        /* 功能卡片 */
+        .section-title { text-align: center; font-weight: 700; font-size: 1.6rem; margin-bottom: 0.5rem; }
+        .section-sub { text-align: center; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2.5rem; }
+        .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+        .f-card {
+            position: relative; border-radius: 16px; overflow: hidden;
+            text-decoration: none; color: #fff; display: block;
+            height: 160px; transition: all 0.3s;
+        }
+        .f-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); color: #fff; }
+        .f-card .f-content {
+            padding: 1.2rem;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: 100%; text-align: center;
+        }
+        .f-card .ficon {
+            width: 44px; height: 44px; border-radius: 12px; display: flex;
+            align-items: center; justify-content: center; font-size: 1.3rem;
+            background: rgba(255,255,255,0.2); backdrop-filter: blur(4px);
+            margin-bottom: 0.6rem;
+        }
+        .f-card .ftitle { font-weight: 700; font-size: 1rem; margin-bottom: 0.2rem; }
+        .f-card .fdesc { font-size: 0.8rem; opacity: 0.85; }
+
+        /* 无自定义图时的默认背景色 */
+        .f-card-default-1 { background: linear-gradient(135deg, #E8A817, #F5C842); }
+        .f-card-default-2 { background: linear-gradient(135deg, #D1524A, #E8734A); }
+        .f-card-default-3 { background: linear-gradient(135deg, #4A8FC8, #6BAEE0); }
+        .f-card-default-4 { background: linear-gradient(135deg, #5B9A5A, #7BB87B); }
+        .f-card-default-5 { background: linear-gradient(135deg, #E8734A, #F0956E); }
+        .f-card-default-6 { background: linear-gradient(135deg, #D4688A, #E888A8); }
+
+        /* 高校风景 */
+        .gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+        .gallery-grid img {
+            width: 100%; height: 200px; object-fit: cover;
+            border-radius: 12px; transition: transform 0.3s;
+        }
+        .gallery-grid img:hover { transform: scale(1.03); }
+
+        /* 底部 */
+        .footer-strip {
+            background: #2D2D2D; color: #999; padding: 2rem 0; text-align: center; font-size: 0.85rem;
+        }
+        .footer-strip a { color: var(--gold); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2rem; letter-spacing: 2px; }
+            .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+            .gallery-grid img { height: 140px; }
+            .feature-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="top-nav">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a href="/" class="brand"><i class="bi bi-book-half me-2"></i>考研学习系统</a>
+        <div class="nav-links">
+            <a href="{{ url_for('auth.guest_login') }}" class="btn-nav-ghost">游客体验</a>
+            <a href="{{ url_for('auth.login') }}" class="btn-nav-outline">登录</a>
+            <a href="{{ url_for('auth.register') }}" class="btn-nav-primary">免费注册</a>
+        </div>
+    </div>
+</nav>
+
+{% if show_logout_msg %}
+<div id="logout-msg" style="position: fixed; top: 56px; left: 0; right: 0; z-index: 999; background: #E8F5E9; color: #2E7D32; text-align: center; padding: 0.5rem; font-size: 0.9rem;">
+    已成功退出登录
+    <span onclick="this.parentElement.remove()" style="cursor: pointer; margin-left: 1rem; font-weight: bold;">&times;</span>
+</div>
+{% endif %}
+
+<!-- 数据条 -->
+<div class="stats-strip" style="{% if show_logout_msg %}margin-top: 36px;{% endif %}">
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-6 col-md-3"><div class="stat-item"><div class="stat-num" style="color: var(--coral);">多科目</div><div class="stat-label">自由定制</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-item"><div class="stat-num" style="color: var(--gold);">6 合 1</div><div class="stat-label">一体化学习</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-item"><div class="stat-num" style="color: var(--blue);">艾宾浩斯</div><div class="stat-label">智能复习</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-item"><div class="stat-num" style="color: var(--green);">一键导入</div><div class="stat-label">快速上手</div></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- Hero -->
+<section class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">考研一体化<br>学习辅助系统</h1>
+        <p class="hero-subtitle">让每一份努力都有迹可循</p>
+        <div class="hero-subjects">
+            {% for s in subjects %}<span>{{ s.name }}</span>{% endfor %}
+        </div>
+        <div class="hero-btns">
+            <a href="{{ url_for('auth.register') }}" class="btn-white">免费注册</a>
+            <a href="{{ url_for('auth.guest_login') }}" class="btn-outline-white">游客体验</a>
+        </div>
+    </div>
+</section>
+
+<!-- 功能卡片 -->
+<section style="background: #FBF9F5; padding: 5rem 0;">
+    <div class="container">
+        <div class="section-title">核心功能</div>
+        <div class="section-sub">覆盖考研备考全流程，从刷题到复习一站式搞定</div>
+        <div class="feature-grid">
+
+            {% macro card(link, icon, title, desc, cls) %}
+            <a href="{{ link }}" class="f-card {{ cls }}">
+                <div class="f-content">
+                    <div class="ficon"><i class="bi bi-{{ icon }}"></i></div>
+                    <div class="ftitle">{{ title }}</div>
+                    <div class="fdesc">{{ desc }}</div>
+                </div>
+            </a>
+            {% endmacro %}
+
+            {{ card(url_for('auth.guest_login'), 'pencil-square', '真题练习', '逐题练习 · 自动判分', 'f-card-default-1') }}
+            {{ card(url_for('auth.guest_login'), 'arrow-repeat', '错题追踪', '自动收集 · 记忆曲线', 'f-card-default-2') }}
+            {{ card(url_for('auth.guest_login'), 'book', '单词记忆', '新词学习 · 智能复习', 'f-card-default-3') }}
+            {{ card(url_for('auth.guest_login'), 'alarm', '专注计时', '番茄钟 · 学习记录', 'f-card-default-4') }}
+            {{ card(url_for('auth.guest_login'), 'journal-text', '笔记记录', 'Markdown · 分类整理', 'f-card-default-5') }}
+            {{ card(url_for('auth.guest_login'), 'upload', '批量导入', '粘贴解析 · Excel', 'f-card-default-6') }}
+
+        </div>
+    </div>
+</section>
+
+
+<footer class="footer-strip">
+    <div class="container">
+        <p>考研一体化学习辅助系统</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}错题本 — 考研学习系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0" style="color: #333;">
+        <i class="bi bi-exclamation-triangle me-2" style="color: #F44336;"></i>错题本
+    </h3>
+    <a href="{{ url_for('mistake.review') }}" class="btn btn-danger">
+        <i class="bi bi-arrow-repeat me-1"></i>开始复习（{{ due_count }} 题待复习）
+    </a>
+</div>
+
+<!-- 统计卡片 -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center" style="border-left: 4px solid #F44336;">
+            <div class="card-body py-3">
+                <div style="font-size: 1.8rem; font-weight: bold; color: #F44336;">{{ mistakes|selectattr('status','equalto','active')|list|length }}</div>
+                <div class="text-muted small">待复习</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center" style="border-left: 4px solid #4CAF50;">
+            <div class="card-body py-3">
+                <div style="font-size: 1.8rem; font-weight: bold; color: #4CAF50;">{{ mistakes|selectattr('status','equalto','mastered')|list|length }}</div>
+                <div class="text-muted small">已掌握</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center" style="border-left: 4px solid #FFA000;">
+            <div class="card-body py-3">
+                <div style="font-size: 1.8rem; font-weight: bold; color: #FFA000;">{{ due_count }}</div>
+                <div class="text-muted small">今日待复习</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 筛选 -->
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body py-2">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-auto">
+                <select name="subject" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">全部科目</option>
+                    {% for s in subjects %}
+                        <option value="{{ s.id }}" {% if current_subject == s.id %}selected{% endif %}>{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="active" {% if current_status == 'active' %}selected{% endif %}>待复习</option>
+                    <option value="mastered" {% if current_status == 'mastered' %}selected{% endif %}>已掌握</option>
+                    <option value="" {% if current_status == '' %}selected{% endif %}>全部</option>
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 错题列表 -->
+{% if mistakes %}
+<div class="list-group shadow-sm">
+    {% for m in mistakes %}
+    <div class="list-group-item border-0 mb-1 rounded">
+        <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1 me-3">
+                <div class="d-flex gap-2 align-items-center mb-1">
+                    <span class="badge" style="background-color: {{ m.question.subject.color if m.question.subject else '#FFA000' }}; color: #fff;">
+                        {{ m.question.subject.name if m.question.subject else '-' }}
+                    </span>
+                    <span class="badge bg-secondary">{{ m.question.question_type }}</span>
+                    {% if m.status == 'mastered' %}
+                        <span class="badge bg-success">已掌握</span>
+                    {% elif m.next_review_at and m.next_review_at > now %}
+                        <span class="badge bg-light text-dark">阶段 {{ m.mastery_level }}</span>
+                    {% else %}
+                        <span class="badge bg-danger">待复习</span>
+                    {% endif %}
+                    <small class="text-muted">错 {{ m.wrong_count }} 次</small>
+                </div>
+                <a href="{{ url_for('mistake.review', mid=m.id) }}" style="color: #333; text-decoration: none;">
+                    {{ m.question.title[:100] }}{% if m.question.title|length > 100 %}...{% endif %}
+                </a>
+            </div>
+            <form method="POST" action="{{ url_for('mistake.toggle_status', item_id=m.id) }}" class="text-nowrap ms-2">
+                {% if m.status == 'active' %}
+                    <button type="submit" class="btn btn-sm btn-outline-success" title="标记为已掌握">
+                        <i class="bi bi-check2"></i>
+                    </button>
+                {% else %}
+                    <button type="submit" class="btn btn-sm btn-outline-warning" title="移回待复习">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="bi bi-emoji-smile" style="font-size: 3rem; color: #4CAF50;"></i>
+    <p class="text-muted mt-3">没有错题，继续保持！</p>
+</div>
+{% endif %}
+{% endblock %}

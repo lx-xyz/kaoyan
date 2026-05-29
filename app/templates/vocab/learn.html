@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}学习新词 — 考研学习系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">
+        <i class="bi bi-lightbulb me-2" style="color: #2196F3;"></i>学习新词
+    </h4>
+    <div class="d-flex align-items-center gap-3">
+        <!-- 每次学几个 -->
+        <form method="GET" class="d-flex align-items-center gap-1">
+            <small class="text-muted">每次学</small>
+            <input type="number" name="count" value="{{ count }}" min="1" max="100"
+                   class="form-control form-control-sm" style="width: 65px;" onchange="this.form.submit()">
+            <small class="text-muted">个</small>
+        </form>
+        <span class="badge bg-info fs-6">新词池 {{ total_new }} 个</span>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <!-- 进度 -->
+        <div class="d-flex gap-2 mb-3">
+            <span class="badge bg-light text-dark">本轮剩余 {{ pool_count }} 个</span>
+            {% if retry_count > 0 %}
+                <span class="badge" style="background-color: #FFF3E0; color: #E65100;">不认识 {{ retry_count }} 个</span>
+            {% endif %}
+        </div>
+
+        <!-- 单词卡片 -->
+        <div class="card border-0 shadow-lg mb-4" style="min-height: 300px;">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center p-5">
+                <div class="text-center mb-2" style="font-size: 3rem; font-weight: bold; color: #333;">
+                    {{ word.word }}
+                </div>
+                {% if word.phonetic %}
+                    <div class="text-muted mb-4" style="font-size: 1.2rem;">{{ word.phonetic }}</div>
+                {% endif %}
+                <hr class="w-50 mb-4">
+                <div class="text-center" style="font-size: 1.4rem; color: #555;">
+                    {{ word.meaning }}
+                </div>
+            </div>
+        </div>
+
+        <!-- 按钮 -->
+        <form method="POST" action="{{ url_for('vocab.learn_action', word_id=word.id) }}" class="d-flex gap-3 justify-content-center">
+            <button type="submit" name="result" value="wrong" class="btn btn-lg px-5"
+                    style="background-color: #F44336; color: #fff;">
+                <i class="bi bi-x-lg me-1"></i>不认识
+            </button>
+            <button type="submit" name="result" value="correct" class="btn btn-lg px-5"
+                    style="background-color: #4CAF50; color: #fff;">
+                <i class="bi bi-check-lg me-1"></i>认识
+            </button>
+        </form>
+
+        <p class="text-center text-muted mt-3 small">
+            不认识 → 显示释义，本轮结束后回炉重学 &nbsp;|&nbsp; 认识 → 明天开始复习
+        </p>
+    </div>
+</div>
+{% endblock %}

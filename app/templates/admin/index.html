@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% block title %}管理后台 — 考研学习系统{% endblock %}
+
+{% block content %}
+<h3 class="fw-bold mb-4" style="color: var(--text);">
+    <i class="bi bi-shield-check me-2" style="color: #E8A817;"></i>管理后台
+</h3>
+
+<div class="row g-4">
+    <!-- Hero图 -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">首页 Hero 背景图</h6>
+                <div class="rounded overflow-hidden mb-3" style="height: 160px; background:#f5f5f5;">
+                    <img src="{{ hero_img }}" style="width:100%;height:100%;object-fit:cover;">
+                </div>
+                <div class="mb-2 p-2 rounded text-center" style="border:2px dashed #ddd;"
+                     id="paste-hero">
+                    <small class="text-muted"><i class="bi bi-clipboard me-1"></i>在此处 Ctrl+V 粘贴图片</small>
+                </div>
+                <form method="POST" action="{{ url_for('admin.hero_upload') }}" enctype="multipart/form-data">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="url" id="hero-url-input" class="form-control" placeholder="或粘贴图片URL">
+                        <input type="file" name="file" class="form-control form-control-sm" accept="image/*">
+                        <button class="btn btn-primary btn-sm">上传</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 默认图库-仪表盘 -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">默认图库 — 仪表盘</h6>
+                <div class="row g-2 mb-3">
+                    {% for img in default_imgs if img.key == 'dashboard' %}
+                    <div class="col-4">
+                        <div class="position-relative rounded overflow-hidden" style="height:80px;">
+                            <img src="{{ img.url }}" style="width:100%;height:100%;object-fit:cover;">
+                            <form method="POST" action="{{ url_for('admin.default_images') }}" class="position-absolute top-0 end-0 m-1">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id" value="{{ img.id }}">
+                                <button class="btn btn-danger btn-sm rounded-circle" style="width:20px;height:20px;font-size:10px;padding:0;line-height:1;">&times;</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mb-2 p-2 rounded text-center" style="border:2px dashed #ddd;"
+                     id="paste-dash">
+                    <small class="text-muted"><i class="bi bi-clipboard me-1"></i>在此处 Ctrl+V 粘贴图片</small>
+                </div>
+                <form method="POST" action="{{ url_for('admin.default_images') }}" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="add">
+                    <input type="hidden" name="key" value="dashboard">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="url" class="form-control" placeholder="图片URL" id="dash-url-input">
+                        <input type="file" name="file" class="form-control form-control-sm" accept="image/*">
+                        <button class="btn btn-primary btn-sm">添加</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 默认图库-计时 -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">默认图库 — 计时页</h6>
+                <div class="row g-2 mb-3">
+                    {% for img in default_imgs if img.key == 'timer' %}
+                    <div class="col-4">
+                        <div class="position-relative rounded overflow-hidden" style="height:80px;">
+                            <img src="{{ img.url }}" style="width:100%;height:100%;object-fit:cover;">
+                            <form method="POST" action="{{ url_for('admin.default_images') }}" class="position-absolute top-0 end-0 m-1">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id" value="{{ img.id }}">
+                                <button class="btn btn-danger btn-sm rounded-circle" style="width:20px;height:20px;font-size:10px;padding:0;line-height:1;">&times;</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mb-2 p-2 rounded text-center" style="border:2px dashed #ddd;"
+                     id="paste-timer">
+                    <small class="text-muted"><i class="bi bi-clipboard me-1"></i>在此处 Ctrl+V 粘贴图片</small>
+                </div>
+                <form method="POST" action="{{ url_for('admin.default_images') }}" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="add">
+                    <input type="hidden" name="key" value="timer">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="url" class="form-control" placeholder="图片URL" id="timer-url-input">
+                        <input type="file" name="file" class="form-control form-control-sm" accept="image/*">
+                        <button class="btn btn-primary btn-sm">添加</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 默认科目 -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">默认科目（新用户初始状态）</h6>
+                <form method="POST" action="{{ url_for('admin.subjects') }}" class="row g-2 align-items-end mb-3">
+                    <input type="hidden" name="action" value="add">
+                    <div class="col-5"><input type="text" name="name" class="form-control form-control-sm" placeholder="科目名" required></div>
+                    <div class="col-4"><input type="text" name="code" class="form-control form-control-sm" placeholder="英文代码"></div>
+                    <div class="col-2"><input type="color" name="color" class="form-control form-control-sm" value="#E8A817" style="height:31px;"></div>
+                    <div class="col-1"><button class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center">+</button></div>
+                </form>
+                <div class="d-flex flex-wrap gap-1">
+                    {% for s in default_subjects %}
+                    <span class="badge d-flex align-items-center gap-1" style="background:{{ s.color }}; color:#fff;">
+                        {{ s.name }} <small class="opacity-75">({{ s.code }})</small>
+                        <form method="POST" action="{{ url_for('admin.subjects') }}" class="d-inline">
+                            <input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="{{ s.id }}">
+                            <button class="btn-close btn-close-white" style="font-size:0.5rem;" onclick="return confirm('删除默认科目「{{ s.name }}」？')"></button>
+                        </form>
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 默认语录 -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">默认励志语录（新用户没设语录时显示）</h6>
+                <form method="POST" action="{{ url_for('admin.quote') }}">
+                    <textarea name="quote" class="form-control form-control-sm mb-2" rows="4" placeholder="每行一句语录...">{{ default_quote }}</textarea>
+                    <button class="btn btn-primary btn-sm">保存</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理员自己的科目 -->
+    <div class="col-lg-6">
+        <div class="card"><div class="card-body">
+            <h6 class="fw-bold mb-3">我的科目</h6>
+            <form method="POST" action="{{ url_for('admin.my_subjects') }}" class="row g-2 mb-2 align-items-end">
+                <input type="hidden" name="action" value="add">
+                <div class="col-4"><input type="text" name="name" class="form-control form-control-sm" placeholder="科目名" required></div>
+                <div class="col-3"><input type="text" name="code" class="form-control form-control-sm" placeholder="代码"></div>
+                <div class="col-2"><input type="color" name="color" class="form-control form-control-sm" value="#E8A817" style="height:31px;"></div>
+                <div class="col-3"><button class="btn btn-primary btn-sm w-100">+ 添加</button></div>
+            </form>
+            <div class="d-flex flex-wrap gap-1">
+                {% for s in my_subjects %}
+                <span class="badge d-flex align-items-center gap-1" style="background:{{ s.color }}; color:#fff;">
+                    {{ s.name }} <small class="opacity-75">({{ s.code }})</small>
+                    {% if not s.is_default %}
+                    <form method="POST" action="{{ url_for('admin.my_subjects') }}" class="d-inline">
+                        <input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="{{ s.id }}">
+                        <button class="btn-close btn-close-white" style="font-size:0.5rem;"></button>
+                    </form>
+                    {% endif %}
+                </span>
+                {% endfor %}
+            </div>
+        </div></div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+var pasteMap = { 'paste-hero': 'hero-url-input', 'paste-dash': 'dash-url-input', 'paste-timer': 'timer-url-input' };
+Object.keys(pasteMap).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('paste', function(e) {
+        var items = e.clipboardData && e.clipboardData.items;
+        if (!items) return;
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') === 0) {
+                e.preventDefault();
+                var blob = items[i].getAsFile();
+                var fd = new FormData(); fd.append('image', blob, 'paste.png');
+                var hint = el.querySelector('small');
+                hint.textContent = '上传中...';
+                fetch('/upload/image', {method:'POST', body:fd})
+                .then(r => r.json())
+                .then(data => {
+                    if (data.url) {
+                        document.getElementById(pasteMap[id]).value = data.url;
+                        hint.innerHTML = '<i class="bi bi-check-circle me-1"></i>已粘贴，点上传按钮';
+                    }
+                })
+                .catch(() => { hint.textContent = '失败'; });
+                return;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

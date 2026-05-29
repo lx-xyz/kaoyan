@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}系统设置 — 考研学习系统{% endblock %}
+
+{% block content %}
+<h3 class="fw-bold mb-2" style="color: var(--text);">
+    <i class="bi bi-gear me-2" style="color: #E8A817;"></i>系统设置
+</h3>
+<p class="text-muted mb-4">自定义首页图片和考试科目。</p>
+
+<!-- 图片设置 -->
+<h6 class="fw-bold mb-3">图片设置</h6>
+<div class="row g-4 mb-5">
+    {% for key, info in images.items() %}
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="fw-bold mb-2">{{ info.label }}</h6>
+                <div class="mb-3 rounded overflow-hidden" style="height: 140px; background: #f5f5f5;">
+                    <img src="{{ info.value }}" alt="{{ info.label }}" style="width:100%;height:100%;object-fit:cover;">
+                </div>
+                <div class="mb-2 p-2 rounded text-center" style="border:2px dashed #ddd;"
+                     id="paste-{{ key }}">
+                    <small class="text-muted"><i class="bi bi-clipboard me-1"></i>在此处 Ctrl+V 粘贴图片</small>
+                </div>
+                <form method="POST" action="{{ url_for('settings.upload') }}" enctype="multipart/form-data">
+                    <input type="hidden" name="key" value="{{ key }}">
+                    <div class="input-group input-group-sm mb-2">
+                        <input type="text" name="url" class="form-control" placeholder="或粘贴图片URL" id="url-{{ key }}">
+                        <input type="file" name="file" class="form-control form-control-sm" accept="image/*">
+                        <button type="submit" class="btn btn-primary btn-sm text-nowrap">上传</button>
+                    </div>
+                </form>
+                {% if not info.is_default %}
+                <form method="POST" action="{{ url_for('settings.reset') }}">
+                    <input type="hidden" name="key" value="{{ key }}">
+                    <button class="btn btn-sm btn-outline-secondary">恢复默认</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 科目管理 -->
+<h6 class="fw-bold mb-3">科目管理</h6>
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('settings.manage_subjects') }}" class="row g-2 align-items-end">
+            <input type="hidden" name="action" value="add">
+            <div class="col-md-4">
+                <label class="form-label small">科目名称</label>
+                <input type="text" name="name" class="form-control form-control-sm" placeholder="如：政治" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">代码（英文）</label>
+                <input type="text" name="code" class="form-control form-control-sm" placeholder="如：politics" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">颜色</label>
+                <input type="color" name="color" class="form-control form-control-sm" value="#E8A817" style="height: 31px;">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100">添加</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table mb-0">
+            <thead><tr><th>科目</th><th>代码</th><th>颜色</th><th style="width:120px;"></th></tr></thead>
+            <tbody>
+                {% for s in subjects %}
+                <tr>
+                    <td>
+                        <span class="badge me-2" style="background:{{ s.color }}; color:#fff;">{{ s.name }}</span>
+                    </td>
+                    <td><code>{{ s.code }}</code></td>
+                    <td><span style="display:inline-block;width:20px;height:20px;border-radius:4px;background:{{ s.color }};"></span></td>
+                    <td>
+                        <form method="POST" action="{{ url_for('settings.manage_subjects') }}" class="d-inline" onsubmit="return confirm('删除「{{ s.name }}」？相关题目也会被影响。')">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="id" value="{{ s.id }}">
+                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="/" target="_blank" class="btn btn-outline-primary">
+        <i class="bi bi-eye me-1"></i>预览首页
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+['dashboard_image','timer_image'].forEach(function(key) {
+    var el = document.getElementById('paste-' + key);
+    if (!el) return;
+    el.addEventListener('paste', function(e) {
+        var items = e.clipboardData && e.clipboardData.items;
+        if (!items) return;
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') === 0) {
+                e.preventDefault();
+                var blob = items[i].getAsFile();
+                var fd = new FormData(); fd.append('image', blob, 'paste.png');
+                el.querySelector('small').textContent = '上传中...';
+                fetch('/upload/image', {method:'POST', body:fd})
+                .then(r => r.json())
+                .then(data => {
+                    if (data.url) {
+                        document.getElementById('url-' + key).value = data.url;
+                        el.querySelector('small').innerHTML = '<i class="bi bi-check-circle me-1"></i>已粘贴，点上传';
+                    }
+                })
+                .catch(() => { el.querySelector('small').textContent = '失败'; });
+                return;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

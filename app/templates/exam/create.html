@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}录入题目 — 考研学习系统{% endblock %}
+
+{% block content %}
+<div class="row"><div class="col-lg-8 mx-auto">
+<h3 class="fw-bold mb-4" style="color: var(--text);"><i class="bi bi-plus-square me-2" style="color: #E8A817;"></i>录入题目</h3>
+
+<div class="card"><div class="card-body p-4">
+<form method="POST" novalidate>{{ form.hidden_tag() }}
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">科目</label>
+        <select name="subject_id" id="subject-select" class="form-select" onchange="updateTypes()">
+            <option value="">选择科目</option>
+            {% for s in form.subject_id.choices %}
+            <option value="{{s[0]}}" {% if form.subject_id.data==s[0] %}selected{% endif %} data-code="{{subject_codes.get(s[0],'')}}">{{s[1]}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3"><label class="form-label fw-semibold">年份</label><input type="number" name="year" class="form-control" placeholder="可选" value="{{form.year.data or ''}}"></div>
+    <div class="col-md-5"><label class="form-label fw-semibold">来源</label><input type="text" name="source" class="form-control" placeholder="可选" value="{{form.source.data or ''}}"></div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">题型</label>
+        <select name="question_type" id="qtype-input" class="form-select" onchange="updateTypes()">
+            <option value="">选择题型</option>
+        </select>
+    </div>
+    <div class="col-md-3"><label class="form-label fw-semibold">题号</label><input type="number" name="question_number" class="form-control" placeholder="可选" value="{{form.question_number.data or ''}}"></div>
+    <div class="col-md-5">
+        <label class="form-label fw-semibold">难度</label>
+        <select name="difficulty" class="form-select">
+            {% for v,label in [(0,'不设置'),(1,'1-很简单'),(2,'2-简单'),(3,'3-中等'),(4,'4-较难'),(5,'5-很难')] %}
+            <option value="{{v}}" {% if (form.difficulty.data or 3)==v %}selected{% endif %}>{{label}}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label fw-semibold">题干 <small class="text-muted fw-normal">（支持 $LaTeX$，截图 Ctrl+V 粘贴）</small></label>
+    <textarea name="title" class="form-control" rows="4" data-paste-upload
+        placeholder="在此输入题干...">{{form.title.data or ''}}</textarea>
+</div>
+
+<div class="card mb-3" style="background:#f8f9fa;"><div class="card-body">
+    <h6 class="fw-bold mb-3">选项（选择题填写）</h6>
+    <div class="row g-2">
+        {% for label, field in [('A',form.option_a),('B',form.option_b),('C',form.option_c),('D',form.option_d)] %}
+        <div class="col-md-6"><label class="form-label small fw-semibold">{{label}}</label>{{field(class="form-control",rows=2,placeholder="可选")}}</div>
+        {% endfor %}
+    </div>
+</div></div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-6"><label class="form-label fw-semibold">正确答案</label><input type="text" name="correct_answer" class="form-control" value="{{form.correct_answer.data or ''}}" placeholder="A/B/C/D 或任意答案"></div>
+    <div class="col-md-6"><label class="form-label fw-semibold">标签</label><input type="text" name="tags" class="form-control" value="{{form.tags.data or ''}}" placeholder="可选，逗号分隔"></div>
+</div>
+
+<div class="mb-4">
+    <label class="form-label fw-semibold">解析</label>
+    <textarea name="analysis" class="form-control" rows="3" data-paste-upload placeholder="可选，题目解析...">{{form.analysis.data or ''}}</textarea>
+</div>
+
+<div class="d-flex gap-2">
+    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>保存题目</button>
+    <a href="{{url_for('exam.list_questions')}}" class="btn btn-outline-secondary">取消</a>
+</div>
+</form>
+</div></div>
+</div></div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{url_for('static',filename='js/image_paste.js')}}"></script>
+<script>
+var typeMap={english:['完形','阅读','翻译','写作'],math:['单选','填空','解答'],ds:['单选','综合'],co:['单选','综合'],os:['单选','综合'],cn:['单选','综合']};
+function updateTypes(){var sel=document.getElementById('subject-select');var code=sel.options[sel.selectedIndex].dataset.code;var types=typeMap[code]||['单选','多选','填空','解答','阅读','完形','翻译','写作','编程'];var qs=document.getElementById('qtype-input');var cur=qs.value;qs.innerHTML='<option value="">选择题型</option>'+types.map(function(t){return'<option value="'+t+'"'+(t===cur?' selected':'')+'>'+t+'</option>';}).join('');}
+updateTypes();
+</script>
+{% endblock %}

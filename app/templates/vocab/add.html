@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}添加单词 — 考研学习系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 mx-auto">
+        <h3 class="fw-bold mb-4" style="color: #333;">
+            <i class="bi bi-plus-square me-2" style="color: #2196F3;"></i>添加单词
+        </h3>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">批量添加</label>
+                        <p class="text-muted small mb-2">
+                            每行一个单词，格式：<code>单词 | 释义 | 音标(可选)</code>
+                        </p>
+                        <textarea name="words_text" class="form-control" rows="12"
+                            placeholder="abandon | 放弃 | /&#x259;&#x2C8;bænd&#x259;n/&#10;compromise | 妥协，让步&#10;persevere | 坚持 | /&#x252;p&#x259;&#x2D0;s&#x26A;&#x2C8;v&#x26A;&#x259;/&#10;..."></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i>添加
+                        </button>
+                        <a href="{{ url_for('vocab.list_words') }}" class="btn btn-outline-secondary">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm" style="background-color: #FFF8E1;">
+            <div class="card-body">
+                <h6 class="fw-bold mb-2">
+                    <i class="bi bi-info-circle me-1" style="color: #FFA000;"></i>使用说明
+                </h6>
+                <ul class="mb-0 small text-muted">
+                    <li>用 <code>|</code> 分隔单词、释义、音标</li>
+                    <li>音标可以省略，只写 <code>单词 | 释义</code> 即可</li>
+                    <li>已存在的单词会自动跳过，不会重复添加</li>
+                    <li>添加后可直接开始复习</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

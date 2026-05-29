@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}编辑题目 — 考研学习系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <h3 class="fw-bold mb-4" style="color: #333;">
+            <i class="bi bi-pencil-square me-2" style="color: #FFA000;"></i>编辑题目
+        </h3>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">{{ form.subject_id.label.text }}</label>
+                            {{ form.subject_id(class="form-select") }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">{{ form.year.label.text }}</label>
+                            {{ form.year(class="form-control") }}
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-semibold">{{ form.source.label.text }}</label>
+                            {{ form.source(class="form-control") }}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">{{ form.question_type.label.text }}</label>
+                            <input type="text" name="question_type" class="form-control" list="qtypes" value="{{ form.question_type.data or '单选' }}" placeholder="输入或选择">
+                            <datalist id="qtypes">
+                                <option value="单选"><option value="多选"><option value="填空">
+                                <option value="解答"><option value="阅读"><option value="完形">
+                                <option value="翻译"><option value="写作"><option value="编程">
+                            </datalist>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">{{ form.question_number.label.text }}</label>
+                            {{ form.question_number(class="form-control") }}
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-semibold">{{ form.difficulty.label.text }}</label>
+                            {{ form.difficulty(class="form-select") }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.title.label.text }}</label>
+                        <textarea name="title" id="title" class="form-control" rows="5"
+                            data-paste-upload>{{ form.title.data or '' }}</textarea>
+                        {% for e in form.title.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                    </div>
+
+                    <div class="card mb-3" style="background-color: #f8f9fa;">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3">选项</h6>
+                            <div class="row g-2">
+                                {% for label, field in [('A', form.option_a), ('B', form.option_b), ('C', form.option_c), ('D', form.option_d)] %}
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">{{ label }}</label>
+                                    {{ field(class="form-control", rows=2) }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.correct_answer.label.text }}</label>
+                            {{ form.correct_answer(class="form-control") }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.tags.label.text }}</label>
+                            {{ form.tags(class="form-control") }}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">{{ form.analysis.label.text }}</label>
+                        <textarea name="analysis" id="analysis" class="form-control" rows="4"
+                            data-paste-upload>{{ form.analysis.data or '' }}</textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        {{ form.submit(class="btn btn-warning", style="background-color: #FFA000; border-color: #FFA000; color: #fff;") }}
+                        <a href="{{ url_for('exam.question_detail', question_id=question.id) }}" class="btn btn-outline-secondary">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/image_paste.js') }}"></script>
+{% endblock %}

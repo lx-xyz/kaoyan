@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}专注计时 — 考研学习系统{% endblock %}
+
+{% block content %}
+<style>
+    .timer-fullscreen {
+        position: fixed; inset: 0; z-index: -1;
+        background: url('{{ timer_img }}') center/cover no-repeat;
+        background-size: cover;
+    }
+    .timer-fullscreen::before {
+        content: ''; position: absolute; inset: 0;
+        background: rgba(255,255,255,0.65);
+    }
+    .timer-content { padding-top: 2rem; }
+</style>
+
+<div class="timer-fullscreen" id="timer-bg"></div>
+{% if timer_urls|length > 1 %}
+<button class="btn btn-sm btn-dark position-fixed bottom-0 end-0 m-3 rounded-pill opacity-50"
+        onclick='var e=document.getElementById("timer-bg");var urls={{ timer_urls|tojson }};var i=parseInt(e.dataset.idx||0);i=(i+1)%urls.length;e.dataset.idx=i;e.style.backgroundImage="url("+urls[i]+")";'
+        style="font-size:0.7rem; z-index:1;">
+    <i class="bi bi-images me-1"></i>切换
+</button>
+{% endif %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-5 text-center timer-content">
+            <div class="text-center">
+                <h4 class="fw-bold mb-3" style="color: var(--text);">
+                    <i class="bi bi-alarm me-2" style="color: #5B9A5A;"></i>专注计时
+                </h4>
+
+                <!-- 圆形进度环 -->
+                <div class="position-relative d-inline-block mb-3">
+                    <svg width="220" height="220" viewBox="0 0 260 260">
+                        <circle cx="130" cy="130" r="115" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="8"/>
+                        <circle id="progress-ring" cx="130" cy="130" r="115" fill="none" stroke="#5B9A5A" stroke-width="8"
+                                stroke-linecap="round" stroke-dasharray="722.6" stroke-dashoffset="0"
+                                transform="rotate(-90 130 130)" style="transition: stroke-dashoffset 1s linear;"/>
+                    </svg>
+                    <div class="position-absolute top-50 start-50 translate-middle text-center">
+                        <div id="timer-display" style="font-size: 2.6rem; font-weight: 800; color: #333; line-height: 1.1;">25:00</div>
+                        <div id="timer-label" class="text-muted small">准备开始</div>
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <select id="subject-select" class="form-select form-select-sm d-inline-block" style="width: auto;">
+                        <option value="">选择科目（可选）</option>
+                        {% for s in subjects %}
+                            <option value="{{ s.id }}">{{ s.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3 d-flex justify-content-center align-items-center gap-2">
+                    <input type="number" id="hours-input" class="form-control form-control-sm" value="0" min="0" max="24" style="width: 60px;">
+                    <span class="text-muted small">时</span>
+                    <input type="number" id="minutes-input" class="form-control form-control-sm" value="25" min="0" max="59" style="width: 60px;">
+                    <span class="text-muted small">分</span>
+                    <button id="btn-apply" class="btn btn-sm btn-outline-primary">设置</button>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-center mb-3">
+                    <button id="btn-start" class="btn btn-lg px-4" style="background: #5B9A5A; color: #fff;">
+                        <i class="bi bi-play-fill me-1"></i>开始
+                    </button>
+                    <button id="btn-pause" class="btn btn-lg btn-outline-secondary px-4" style="display: none;">
+                        <i class="bi bi-pause-fill me-1"></i>暂停
+                    </button>
+                    <button id="btn-reset" class="btn btn-lg btn-outline-danger px-3">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                </div>
+
+                <!-- 今日统计 -->
+                <div class="row justify-content-center">
+                    <div class="col-4">
+                        <div style="font-size: 1.3rem; font-weight: 700; color: #5B9A5A;" id="today-minutes">{{ today_minutes }}</div>
+                        <small class="text-muted">今日分钟</small>
+                    </div>
+                    <div class="col-4">
+                        <div style="font-size: 1.3rem; font-weight: 700; color: #E8A817;">{{ today_sessions }}</div>
+                        <small class="text-muted">今日番茄</small>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/timer.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}题目详情 — 考研学习系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="{{ url_for('exam.list_questions') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>返回列表
+            </a>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('exam.edit_question', question_id=question.id) }}" class="btn btn-sm btn-outline-warning">
+                    <i class="bi bi-pencil me-1"></i>编辑
+                </a>
+                <form method="POST" action="{{ url_for('exam.delete_question', question_id=question.id) }}"
+                      onsubmit="return confirm('确定删除这道题目吗？此操作不可恢复。')">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash me-1"></i>删除
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4">
+                <!-- 元信息 -->
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge" style="background-color: {{ question.subject.color if question.subject else '#FFA000' }}; color: #fff; font-size: 0.9rem;">
+                        {{ question.subject.name if question.subject else '-' }}
+                    </span>
+                    <span class="badge bg-secondary">{{ question.question_type }}</span>
+                    {% if question.year %}<span class="badge bg-light text-dark">{{ question.year }}年</span>{% endif %}
+                    <span class="badge bg-light text-dark">
+                        {% if question.difficulty %}{% for _ in range(question.difficulty) %}★{% endfor %}{% endif %}
+                    </span>
+                    {% if question.tags %}
+                        {% for tag in question.tags.split(',') %}
+                            <span class="badge text-dark" style="background-color: #FFF8E1;">{{ tag.strip() }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- 题号 -->
+                {% if question.question_number %}
+                    <p class="text-muted mb-2" style="font-size: 0.9rem;">第 {{ question.question_number }} 题</p>
+                {% endif %}
+
+                <!-- 题干 -->
+                <div class="mb-4 p-3 rounded" style="background-color: #FFF8E1; border-left: 4px solid #FFA000;">
+                    <div class="question-content">{{ question.title | safe }}</div>
+                </div>
+
+                <!-- 英语文章 -->
+                {% if question.passage_text %}
+                <div class="mb-4 p-3 rounded" style="background-color: #f8f9fa; border-left: 4px solid #4A8FC8;">
+                    <h6 class="fw-bold mb-2" style="color: #4A8FC8;"><i class="bi bi-file-text me-1"></i>阅读文章</h6>
+                    <div style="white-space: pre-wrap; line-height: 1.8;">{{ question.passage_text }}</div>
+                </div>
+                {% endif %}
+
+                <!-- 选项 -->
+                {% if question.option_a or question.option_b or question.option_c or question.option_d %}
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3">选项</h6>
+                    {% for label, opt in [('A', question.option_a), ('B', question.option_b), ('C', question.option_c), ('D', question.option_d)] %}
+                        {% if opt %}
+                            <div class="p-2 mb-2 rounded {% if label == question.correct_answer.strip() %}" style="background-color: #E8F5E9; border: 1px solid #4CAF50;{% else %}" style="background-color: #f8f9fa;{% endif %}">
+                                <strong>{{ label }}.</strong> {{ opt }}
+                                {% if label == question.correct_answer.strip() %}
+                                    <span class="badge bg-success ms-2">正确答案</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- 填空题答案 -->
+                {% if question.question_type == '填空' %}
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-2">正确答案</h6>
+                    <div class="p-2 rounded" style="background-color: #E8F5E9; border: 1px solid #4CAF50;">
+                        {{ question.correct_answer }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- 解析 -->
+                {% if question.analysis %}
+                <div class="mt-3">
+                    <h6 class="fw-bold mb-2">
+                        <i class="bi bi-lightbulb me-1" style="color: #FFA000;"></i>解析
+                    </h6>
+                    <div class="p-3 rounded" style="background-color: #f8f9fa;">
+                        <div class="question-content">{{ question.analysis | safe }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

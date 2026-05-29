@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}单词复习 — 考研学习系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 mx-auto text-center py-5">
+        {% if counts.learning > 0 %}
+            <i class="bi bi-hourglass-split" style="font-size: 4rem; color: #FFA000;"></i>
+            <h4 class="mt-3" style="color: #FFA000;">当前没有到期的复习任务</h4>
+            <p class="text-muted">{{ counts.learning }} 个词在复习周期中，但尚未到期。</p>
+        {% else %}
+            <i class="bi bi-check-circle-fill" style="font-size: 4rem; color: #4CAF50;"></i>
+            <h4 class="mt-3" style="color: #4CAF50;">没有待复习的单词</h4>
+        {% endif %}
+
+        <div class="d-flex gap-2 justify-content-center mt-4">
+            {% if counts.new > 0 %}
+            <a href="{{ url_for('vocab.learn') }}" class="btn btn-primary">
+                <i class="bi bi-lightbulb me-1"></i>学习新词（{{ counts.new }}）
+            </a>
+            {% endif %}
+            <a href="{{ url_for('vocab.cards') }}" class="btn btn-outline-primary">
+                <i class="bi bi-grid-3x3-gap me-1"></i>卡片浏览
+            </a>
+            <a href="{{ url_for('vocab.add_word') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-plus-lg me-1"></i>添加单词
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

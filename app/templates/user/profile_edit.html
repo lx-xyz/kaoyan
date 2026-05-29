@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}编辑资料 — 考研学习系统{% endblock %}
+{% block content %}
+<div class="row"><div class="col-lg-6 mx-auto">
+<h3 class="fw-bold mb-4" style="color: var(--text);"><i class="bi bi-pencil-square me-2" style="color: #E8A817;"></i>编辑资料</h3>
+<div class="card"><div class="card-body p-4">
+<form method="POST">
+    <div class="mb-3">
+        <label class="form-label fw-semibold">昵称</label>
+        <input type="text" name="nickname" class="form-control" value="{{ current_user.nickname or current_user.username }}">
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-semibold">目标院校</label>
+        <input type="text" name="target_school" class="form-control" placeholder="如：清华大学" value="{{ current_user.target_school or '' }}">
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-semibold">目标专业</label>
+        <input type="text" name="target_major" class="form-control" placeholder="如：计算机技术" value="{{ current_user.target_major or '' }}">
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-semibold">考研日期</label>
+        <input type="date" name="exam_date" class="form-control" value="{{ current_user.exam_date.strftime('%Y-%m-%d') if current_user.exam_date else '' }}">
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-semibold">每日学习目标（小时）</label>
+        <select name="daily_goal_hours" class="form-select">
+            {% for h in [2,3,4,5,6,8,10] %}<option value="{{h}}" {% if current_user.daily_goal_hours==h %}selected{% endif %}>{{h}} 小时</option>{% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-semibold">每日励志语录</label>
+        <textarea name="custom_quote" class="form-control" rows="3" placeholder="每行一句">{{ current_user.custom_quote or '' }}</textarea>
+    </div>
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>保存</button>
+        <a href="{{ url_for('user.profile') }}" class="btn btn-outline-secondary">取消</a>
+    </div>
+</form>
+</div></div>
+</div></div>
+{% endblock %}

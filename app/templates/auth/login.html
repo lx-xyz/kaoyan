@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}登录 — 考研学习系统{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card">
+            <div class="card-body p-4">
+                <!-- 管理员/用户切换 -->
+                <div class="d-flex justify-content-center mb-3">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <input type="radio" class="btn-check" name="loginMode" id="mode-user" value="user" checked onchange="switchMode()">
+                        <label class="btn btn-outline-secondary" for="mode-user">普通用户</label>
+                        <input type="radio" class="btn-check" name="loginMode" id="mode-admin" value="admin" onchange="switchMode()">
+                        <label class="btn btn-outline-secondary" for="mode-admin">管理员</label>
+                    </div>
+                </div>
+
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.username.label.text }}</label>
+                        {{ form.username(class="form-control", placeholder="请输入用户名") }}
+                        {% if form.username.errors %}<div class="text-danger small">{% for e in form.username.errors %}{{ e }}{% endfor %}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.password.label.text }}</label>
+                        {{ form.password(class="form-control", placeholder="请输入密码") }}
+                        {% if form.password.errors %}<div class="text-danger small">{% for e in form.password.errors %}{{ e }}{% endfor %}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        {{ form.remember(class="form-check-input") }}
+                        <label class="form-check-label">{{ form.remember.label.text }}</label>
+                    </div>
+
+                    <button type="submit" id="login-btn" class="btn btn-primary w-100 fw-bold">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>登录
+                    </button>
+                </form>
+
+                <p class="text-center text-muted mt-3 mb-0">
+                    还没有账号？<a href="{{ url_for('auth.register') }}" style="color: var(--gold);">立即注册</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function switchMode() {
+    var admin = document.getElementById('mode-admin').checked;
+    var btn = document.getElementById('login-btn');
+    if (admin) {
+        btn.className = 'btn btn-warning w-100 fw-bold';
+        btn.innerHTML = '<i class="bi bi-shield-check me-1"></i>管理员登录';
+        btn.style.background = 'var(--coral)';
+        btn.style.borderColor = 'var(--coral)';
+        btn.style.color = '#fff';
+    } else {
+        btn.className = 'btn btn-primary w-100 fw-bold';
+        btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>登录';
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,356 @@
+/* ===== 考研学习系统 — 暖阳色系 ===== */
+
+:root {
+    --gold: #E8A817;
+    --gold-light: #F5C842;
+    --gold-bg: #FFF8E7;
+    --coral: #E8734A;
+    --coral-light: #F0956E;
+    --green: #5B9A5A;
+    --green-bg: #F0F7EF;
+    --red: #D1524A;
+    --red-bg: #FDF3F2;
+    --blue: #4A8FC8;
+    --blue-bg: #F0F5FA;
+    --text: #2D2D2D;
+    --text-secondary: #6B6B6B;
+    --text-muted: #999;
+    --bg: #FBF9F5;
+    --bg-card: #FFFFFF;
+    --border: #EBE5D9;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
+    --shadow: 0 2px 8px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+    --radius: 14px;
+    --radius-sm: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 壁纸覆盖 */
+body.has-wallpaper {
+    background-image: var(--wallpaper-url);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+body.has-wallpaper::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(251, 249, 245, 0.85);
+    z-index: -1;
+}
+body.has-wallpaper .card,
+body.has-wallpaper .navbar,
+body.has-wallpaper .list-group-item,
+body.has-wallpaper .table {
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(8px);
+}
+body.has-wallpaper .navbar {
+    background: rgba(255,255,255,0.8) !important;
+}
+body.has-wallpaper .dash-hero {
+    background: rgba(255,255,255,0.7);
+}
+
+main { flex: 1; padding-bottom: 3rem; }
+
+/* ===== 导航栏 ===== */
+.navbar {
+    background: rgba(255,255,255,0.9) !important;
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--gold) !important;
+}
+.navbar .nav-link {
+    color: var(--text-secondary) !important;
+    font-weight: 500;
+    font-size: 0.88rem;
+    padding: 0.45rem 0.75rem !important;
+    border-radius: 8px;
+    transition: all 0.15s;
+}
+.navbar .nav-link:hover {
+    color: var(--coral) !important;
+    background: #FFF5F0;
+}
+
+.navbar .dropdown-menu {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    padding: 0.4rem;
+}
+.navbar .dropdown-item {
+    border-radius: 8px;
+    padding: 0.45rem 1rem;
+    font-size: 0.88rem;
+}
+.navbar .dropdown-item:hover { background: #FFF8E7; }
+
+/* ===== 卡片 ===== */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+/* ===== 按钮 ===== */
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+    padding: 0.5rem 1.2rem;
+    transition: all 0.15s;
+    font-size: 0.9rem;
+}
+.btn-primary {
+    background: var(--gold) !important;
+    border-color: var(--gold) !important;
+    color: #fff !important;
+}
+.btn-primary:hover {
+    background: #D69915 !important;
+    border-color: #D69915 !important;
+}
+.btn-outline-primary {
+    color: var(--gold) !important;
+    border-color: var(--gold) !important;
+}
+.btn-outline-primary:hover {
+    background: var(--gold) !important;
+    color: #fff !important;
+}
+.btn-success {
+    background: var(--green) !important;
+    border-color: var(--green) !important;
+}
+.btn-danger {
+    background: var(--red) !important;
+    border-color: var(--red) !important;
+}
+.btn-info {
+    background: var(--blue) !important;
+    border-color: var(--blue) !important;
+    color: #fff !important;
+}
+.btn-warning {
+    background: var(--coral) !important;
+    border-color: var(--coral) !important;
+    color: #fff !important;
+}
+
+/* ===== 表单 ===== */
+.form-control, .form-select {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.9rem;
+    transition: border-color 0.15s;
+    background-color: #fff;
+}
+.form-select {
+    padding-right: 2.25rem;
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--gold-light);
+    box-shadow: 0 0 0 3px rgba(232,168,23,0.1);
+    outline: none;
+}
+
+/* ===== 表格 ===== */
+.table thead th {
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+    padding: 0.7rem 1rem;
+    background: #FAFAF7;
+}
+.table tbody td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--border);
+}
+.table-hover tbody tr:hover { background: #FFFDF7; }
+
+/* ===== 标签 ===== */
+.badge {
+    font-weight: 500;
+    padding: 0.3em 0.7em;
+    border-radius: 6px;
+    font-size: 0.76rem;
+}
+
+/* ===== 仪表盘横幅 ===== */
+.dash-hero {
+    background: linear-gradient(135deg, #FFF8E7 0%, #FFF3EB 40%, #F0F7EF 100%);
+    border-radius: var(--radius);
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid #F0E6D0;
+}
+
+/* 每日语录 */
+.daily-quote {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.25rem;
+    text-align: center;
+    position: relative;
+}
+.daily-quote .quote-text {
+    font-size: 1rem;
+    color: var(--text);
+    font-weight: 500;
+    font-style: italic;
+    letter-spacing: 0.5px;
+}
+.daily-quote .quote-author {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+}
+.daily-quote::before {
+    content: '"';
+    position: absolute;
+    left: 1rem;
+    top: 0.3rem;
+    font-size: 2.5rem;
+    color: #F0E6D0;
+    font-family: Georgia, serif;
+    line-height: 1;
+}
+
+/* ===== 统计卡片 ===== */
+.stat-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    background: var(--bg-card);
+    transition: all 0.2s;
+    text-decoration: none;
+    display: block;
+    color: var(--text);
+    text-align: center;
+}
+.stat-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: var(--text);
+}
+.stat-card .stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    margin: 0 auto 0.6rem auto;
+}
+.stat-card .stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.stat-card .stat-label {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+}
+
+/* ===== 功能入口卡片 ===== */
+.feature-entry {
+    text-decoration: none;
+    color: var(--text);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    transition: all 0.2s;
+    flex: 1;
+}
+.feature-entry:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+    text-decoration: none;
+    color: var(--text);
+    border-color: var(--gold-light);
+}
+.feature-entry .fe-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    margin-bottom: 0.8rem;
+}
+.feature-entry .fe-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.2rem;
+}
+.feature-entry .fe-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* ===== 列表组 ===== */
+.list-group-item {
+    border: 1px solid var(--border) !important;
+    margin-bottom: 6px;
+    border-radius: var(--radius-sm) !important;
+    background: var(--bg-card);
+    transition: all 0.15s;
+}
+.list-group-item:hover { background: #FFFDF7; }
+
+/* ===== 页脚 ===== */
+.footer {
+    background: var(--bg-card) !important;
+    border-top: 1px solid var(--border);
+}
+.footer span { color: var(--text-muted) !important; }
+
+/* ===== KaTeX ===== */
+.katex { font-size: 1.1em !important; }
+.katex-display { margin: 0.8em 0 !important; }
+
+/* ===== 动画 ===== */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeInUp 0.4s ease; }
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+    .stat-card .stat-value { font-size: 1.4rem; }
+}

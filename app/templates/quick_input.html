@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}快速录入 — 考研学习系统{% endblock %}
+
+{% block content %}
+<h3 class="fw-bold mb-4" style="color: #333;">
+    <i class="bi bi-clipboard-check me-2" style="color: #FFA000;"></i>快速录入
+</h3>
+
+<p class="text-muted mb-3">
+    从 Word/PDF/网页 中复制题目文本，粘贴到下方 → 点"预览解析" → 确认无误后"批量保存"。
+    支持自动识别题号、选项(A/B/C/D)、答案、解析。
+</p>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <!-- 元信息 -->
+        <form method="POST" id="parse-form">
+            <input type="hidden" name="parse" value="1">
+            <div class="row g-3 mb-3">
+                <div class="col-md-3">
+                    <select name="subject_id" class="form-select" required>
+                        <option value="">选择科目 *</option>
+                        {% for s in subjects %}
+                            <option value="{{ s.id }}" {% if subject_id == s.id %}selected{% endif %}>{{ s.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="number" name="year" class="form-control" placeholder="年份"
+                           value="{{ year if year else '' }}">
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="source" class="form-control" placeholder="来源（如：2024年真题）"
+                           value="{{ source }}">
+                </div>
+                <div class="col-md-3 text-end">
+                    <button type="submit" class="btn btn-warning" style="background-color: #FFA000; border-color: #FFA000; color: #fff;">
+                        <i class="bi bi-eye me-1"></i>预览解析
+                    </button>
+                </div>
+            </div>
+
+            <textarea name="raw_text" class="form-control" rows="12"
+                placeholder="在此粘贴题目文本...&#10;&#10;示例格式：&#10;1. 设 $f(x)=x^2$，则 $f'(1)=$&#10;A. 0  B. 1  C. 2  D. 3&#10;答案：C&#10;解析：$f'(x)=2x$，代入得2&#10;&#10;2. 计算 $\int_0^1 x dx$&#10;答案：1/2&#10;解析：原式 = $[x^2/2]_0^1 = 1/2$">{{ request.form.get('raw_text', '') }}</textarea>
+        </form>
+    </div>
+</div>
+
+{% if parsed %}
+<form method="POST" id="save-form">
+    <input type="hidden" name="save" value="1">
+    <input type="hidden" name="subject_id" value="{{ subject_id }}">
+    <input type="hidden" name="year" value="{{ year if year else '' }}">
+    <input type="hidden" name="source" value="{{ source }}">
+    <input type="hidden" name="parsed_count" value="{{ parsed|length }}">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">识别到 {{ parsed|length }} 道题</h5>
+        <button type="submit" class="btn btn-warning" style="background-color: #FFA000; border-color: #FFA000; color: #fff;">
+            <i class="bi bi-check-lg me-1"></i>批量保存
+        </button>
+    </div>
+
+    {% for q in parsed %}
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+            <div class="d-flex gap-2 mb-2 align-items-center">
+                <span class="badge bg-secondary">第{{ loop.index }}题</span>
+                <span class="badge bg-secondary">{{ q.question_type }}</span>
+                <input type="hidden" name="qtype_{{ loop.index0 }}" value="{{ q.question_type }}">
+                <datalist id="qtypes">
+                    <option value="单选"><option value="多选"><option value="填空">
+                    <option value="解答"><option value="阅读"><option value="完形">
+                    <option value="翻译"><option value="写作"><option value="编程">
+                </datalist>
+            </div>
+
+            <div class="mb-2">
+                <label class="form-label small fw-semibold">题干</label>
+                <textarea name="title_{{ loop.index0 }}" class="form-control form-control-sm" rows="3">{{ q.title }}</textarea>
+            </div>
+
+            {% if q.option_a or q.option_b %}
+            <div class="row g-2 mb-2">
+                {% for label in ['A','B','C','D'] %}
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">{{ label }}</label>
+                    <input type="text" name="opt_{{ label.lower() }}_{{ loop.parent.index0 }}"
+                           class="form-control form-control-sm" value="{{ q['option_' + label.lower()] }}">
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">正确答案</label>
+                    <input type="text" name="answer_{{ loop.index0 }}" class="form-control form-control-sm"
+                           value="{{ q.correct_answer }}">
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label small fw-semibold">解析</label>
+                    <input type="text" name="analysis_{{ loop.index0 }}" class="form-control form-control-sm"
+                           value="{{ q.analysis }}">
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="text-end mb-5">
+        <button type="submit" class="btn btn-warning btn-lg" style="background-color: #FFA000; border-color: #FFA000; color: #fff;">
+            <i class="bi bi-check-lg me-1"></i>批量保存 {{ parsed|length }} 道题
+        </button>
+    </div>
+</form>
+{% endif %}
+{% endblock %}
