@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import (StringField, PasswordField, BooleanField, SubmitField,
                      SelectField, IntegerField, TextAreaField)
-from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError, Optional
+from wtforms.validators import DataRequired, Length, ValidationError, Optional
 from app.models import User
 
 QUESTION_TYPES = [
@@ -24,19 +24,9 @@ class RegisterForm(FlaskForm):
         DataRequired(message="请输入用户名"),
         Length(min=2, max=64, message="用户名长度2~64个字符")
     ])
-    email = StringField("邮箱", validators=[
-        DataRequired(message="请输入邮箱"),
-        Email(message="请输入有效的邮箱地址"),
-        Length(max=128)
-    ])
-    password = PasswordField("密码", validators=[
-        DataRequired(message="请输入密码"),
-        Length(min=6, message="密码至少6位")
-    ])
-    confirm_password = PasswordField("确认密码", validators=[
-        DataRequired(message="请再次输入密码"),
-        EqualTo("password", message="两次密码输入不一致")
-    ])
+    email = StringField("邮箱", validators=[DataRequired(message="请输入邮箱")])
+    password = PasswordField("密码", validators=[DataRequired(message="请输入密码")])
+    confirm_password = PasswordField("确认密码", validators=[DataRequired(message="请再次输入密码")])
     submit = SubmitField("注册")
 
     def validate_username(self, username):
