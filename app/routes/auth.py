@@ -39,7 +39,7 @@ def register():
     if form.validate_on_submit():
         user = User(
             username=form.username.data,
-            email=form.email.data,
+            email=f"{form.username.data}@user.local",
             nickname=form.username.data,
         )
         user.set_password(form.password.data)

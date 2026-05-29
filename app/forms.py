@@ -24,7 +24,6 @@ class RegisterForm(FlaskForm):
         DataRequired(message="请输入用户名"),
         Length(min=2, max=64, message="用户名长度2~64个字符")
     ])
-    email = StringField("邮箱", validators=[DataRequired(message="请输入邮箱")])
     password = PasswordField("密码", validators=[DataRequired(message="请输入密码")])
     confirm_password = PasswordField("确认密码", validators=[DataRequired(message="请再次输入密码")])
     submit = SubmitField("注册")
@@ -33,11 +32,6 @@ class RegisterForm(FlaskForm):
         user = User.query.filter_by(username=username.data).first()
         if user:
             raise ValidationError("该用户名已被注册，请换一个。")
-
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user:
-            raise ValidationError("该邮箱已被注册，请换一个。")
 
 
 class QuestionForm(FlaskForm):
