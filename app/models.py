@@ -268,7 +268,18 @@ class DefaultImage(db.Model):
 
 
 # ============================================================
-# 13. system_setting — 系统设置（首页图片等）
+# 13. user_image — 用户个人图库
+# ============================================================
+class UserImage(db.Model):
+    __tablename__ = "user_image"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    key = db.Column(db.String(32), nullable=False)
+    url = db.Column(db.Text, nullable=False)
+
+
+# ============================================================
+# 14. system_setting — 系统设置（首页图片等）
 # ============================================================
 class SystemSetting(db.Model):
     __tablename__ = "system_setting"

@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify
 from flask_login import login_required, current_user
 from app import db
-from app.models import get_visible_subjects, Subject, StudySession, SystemSetting, DefaultImage
+from app.models import get_visible_subjects, Subject, StudySession, SystemSetting, DefaultImage, UserImage
 
 timer_bp = Blueprint("timer", __name__)
 
@@ -22,10 +22,12 @@ def timer_page():
     today_sessions = len(sessions)
 
     # 侧边图
-    first_timer = DefaultImage.query.filter_by(key="timer").first()
-    timer_img = current_user.timer_img or (first_timer.url if first_timer else "")
-    timer_imgs = DefaultImage.query.filter_by(key="timer").all()
-    timer_urls = [timer_img] + [i.url for i in timer_imgs]
+    user_t = UserImage.query.filter_by(user_id=current_user.id, key="timer_image").all()
+    admin_t = DefaultImage.query.filter_by(key="timer").all()
+    first_u = user_t[0].url if user_t else ""
+    first_a = admin_t[0].url if admin_t else ""
+    timer_img = first_u or first_a or ""
+    timer_urls = [i.url for i in user_t] + [i.url for i in admin_t]
     timer_urls = [u for u in timer_urls if u]
     seen = set()
     unique = []

@@ -33,9 +33,9 @@ def page():
     for key, default in IMAGE_KEYS.items():
         user_val = current_user.dashboard_img if key == "dashboard_image" else current_user.timer_img
         images[key] = {
-            "value": user_val or get_setting(key, default),
+            "value": user_imgs[0].url if user_imgs else get_setting(key, default),
             "label": IMAGE_LABELS.get(key, key),
-            "is_default": not user_val,
+            "user_imgs": user_imgs,
         }
     # 科目：默认 + 自己创建的，去掉隐藏的
     from app.models import HiddenSubject

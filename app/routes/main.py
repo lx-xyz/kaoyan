@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, date
 from flask import Blueprint, render_template, request
 from flask_login import current_user, login_required
 from app import db
-from app.models import StudySession, ExamRecord, MistakeItem, VocabularyWord, SystemSetting, Subject, get_visible_subjects, DefaultImage
+from app.models import StudySession, ExamRecord, MistakeItem, VocabularyWord, SystemSetting, Subject, get_visible_subjects, DefaultImage, UserImage
 
 main_bp = Blueprint("main", __name__)
 
@@ -87,10 +87,12 @@ def dashboard():
     countdown_days, countdown_date = _exam_countdown(current_user)
 
     # 仪表盘图：用户自己 > 默认图库第一张
-    first_dash = DefaultImage.query.filter_by(key="dashboard").first()
-    dashboard_img = current_user.dashboard_img or (first_dash.url if first_dash else "")
-    dash_imgs = DefaultImage.query.filter_by(key="dashboard").all()
-    dash_urls = [dashboard_img] + [i.url for i in dash_imgs]
+    user_d = UserImage.query.filter_by(user_id=current_user.id, key="dashboard_image").all()
+    admin_d = DefaultImage.query.filter_by(key="dashboard").all()
+    first_u = user_d[0].url if user_d else ""
+    first_a = admin_d[0].url if admin_d else ""
+    dashboard_img = first_u or first_a or ""
+    dash_urls = [i.url for i in user_d] + [i.url for i in admin_d]
     dash_urls = [u for u in dash_urls if u]
     # 去重
     seen = set()
