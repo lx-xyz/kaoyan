@@ -23,9 +23,7 @@
     </div>
     <div class="mb-3">
         <label class="form-label fw-semibold">每日学习目标（小时）</label>
-        <select name="daily_goal_hours" class="form-select">
-            {% for h in [2,3,4,5,6,8,10] %}<option value="{{h}}" {% if current_user.daily_goal_hours==h %}selected{% endif %}>{{h}} 小时</option>{% endfor %}
-        </select>
+        <input type="number" name="daily_goal_hours" class="form-control" value="{{current_user.daily_goal_hours}}" min="1" max="24" placeholder="自定义小时数">
     </div>
     <div class="mb-3">
         <label class="form-label fw-semibold">每日励志语录</label>

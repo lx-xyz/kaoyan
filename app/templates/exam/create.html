@@ -25,9 +25,8 @@
 <div class="row g-3 mb-3">
     <div class="col-md-4">
         <label class="form-label fw-semibold">题型</label>
-        <select name="question_type" id="qtype-input" class="form-select" onchange="updateTypes()">
-            <option value="">选择题型</option>
-        </select>
+        <input type="text" name="question_type" id="qtype-input" class="form-control" list="qtype-list" placeholder="选择或输入题型" onchange="updateTypes()">
+        <datalist id="qtype-list"></datalist>
     </div>
     <div class="col-md-3"><label class="form-label fw-semibold">题号</label><input type="number" name="question_number" class="form-control" placeholder="可选" value="{{form.question_number.data or ''}}"></div>
     <div class="col-md-5">
@@ -78,7 +77,7 @@
 <script src="{{url_for('static',filename='js/image_paste.js')}}"></script>
 <script>
 var typeMap={english:['完形','阅读','翻译','写作'],math:['单选','填空','解答'],ds:['单选','综合'],co:['单选','综合'],os:['单选','综合'],cn:['单选','综合']};
-function updateTypes(){var sel=document.getElementById('subject-select');var code=sel.options[sel.selectedIndex].dataset.code;var types=typeMap[code]||['单选','多选','填空','解答','阅读','完形','翻译','写作','编程'];var qs=document.getElementById('qtype-input');var cur=qs.value;qs.innerHTML='<option value="">选择题型</option>'+types.map(function(t){return'<option value="'+t+'"'+(t===cur?' selected':'')+'>'+t+'</option>';}).join('');}
+function updateTypes(){var sel=document.getElementById('subject-select');var code=sel.options[sel.selectedIndex].dataset.code;var types=typeMap[code]||['单选','多选','填空','解答','阅读','完形','翻译','写作','编程'];document.getElementById('qtype-list').innerHTML=types.map(function(t){return'<option value="'+t+'">';}).join('');}
 updateTypes();
 </script>
 {% endblock %}

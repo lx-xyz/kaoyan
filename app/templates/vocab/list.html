@@ -10,9 +10,10 @@
         <button class="btn btn-info text-white" onclick="learnSelected()">
             <i class="bi bi-lightbulb me-1"></i>学习所选
         </button>
-        <a href="{{ url_for('vocab.learn') }}" class="btn btn-outline-info">
-            随机学习
-        </a>
+<form method="GET" action="{{ url_for('vocab.learn') }}" class="d-flex align-items-center gap-1">
+            <small class="text-muted">每次学</small><input type="number" id="learn-count" name="count" value="10" min="1" max="100" class="form-control form-control-sm" style="width:65px;padding-right:2px;"><small class="text-muted">个</small>
+            <button class="btn btn-outline-info btn-sm">随机学习</button>
+        </form>
         <a href="{{ url_for('vocab.review') }}" class="btn btn-warning"
            style="background-color: #FFA000; border-color: #FFA000; color: #fff;">
             开始复习
@@ -73,12 +74,20 @@
     </div>
     <div class="col-auto ms-auto">
         <small class="text-muted">
-            <a href="#" onclick="document.querySelectorAll('.word-check').forEach(c=>c.checked=true);return false;">全选</a>
-            &nbsp;|&nbsp;
-            <a href="#" onclick="document.querySelectorAll('.word-check').forEach(c=>c.checked=false);return false;">取消</a>
         </small>
     </div>
 </form>
+
+<!-- 批量操作栏 -->
+<div class="card border-0 shadow-sm mb-3"><div class="card-body py-2">
+    <div class="d-flex gap-2 align-items-center">
+        <small class="text-muted"><a href="#" onclick="var all=document.querySelectorAll('.word-check');var chk=all.length>0&&all[0].checked;all.forEach(c=>c.checked=!chk);return false;">全选/取消</a></small>
+        <button class="btn btn-outline-info btn-sm" onclick="learnSelected()"><i class="bi bi-lightbulb me-1"></i>学习所选</button>
+        <button class="btn btn-outline-success btn-sm" onclick="batchAction('toggle')"><i class="bi bi-check2 me-1"></i>切换状态</button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="batchAction('reset')"><i class="bi bi-arrow-repeat me-1"></i>重置为新词</button>
+        <button class="btn btn-outline-danger btn-sm" onclick="batchAction('delete')"><i class="bi bi-trash me-1"></i>删除</button>
+    </div>
+</div></div>
 
 <!-- 单词表格 -->
 {% if words %}
@@ -97,9 +106,7 @@
             {% for w in words %}
             <tr class="{% if w.review_stage == -1 %}table-light{% endif %}">
                 <td>
-                    {% if w.review_stage == -1 %}
-                        <input type="checkbox" class="form-check-input word-check" value="{{ w.id }}">
-                    {% endif %}
+                    <input type="checkbox" class="form-check-input word-check" value="{{ w.id }}">
                 </td>
                 <td>
                     <strong>{{ w.word }}</strong>
@@ -124,6 +131,9 @@
                                 <i class="bi {% if w.is_mastered %}bi-arrow-counterclockwise{% else %}bi-check2{% endif %}"></i>
                             </button>
                         </form>
+                        <form method="POST" action="{{ url_for('vocab.reset_word', word_id=w.id) }}" class="d-inline">
+                            <button class="btn btn-sm btn-outline-secondary" title="重置为新词"><i class="bi bi-arrow-repeat"></i></button>
+                        </form>
                         <form method="POST" action="{{ url_for('vocab.delete_word', word_id=w.id) }}" class="d-inline" onsubmit="return confirm('删除？')">
                             <button class="btn btn-sm btn-outline-danger" title="删除"><i class="bi bi-trash"></i></button>
                         </form>
@@ -142,17 +152,30 @@
 {% endif %}
 {% endblock %}
 
+
+
 {% block extra_scripts %}
 <script>
+function getCount() { var el = document.getElementById('learn-count'); return el ? (el.value || 10) : 10; }
 function learnSelected() {
     var checked = document.querySelectorAll('.word-check:checked');
-    if (checked.length === 0) {
-        alert('请先勾选要学习的新词（只有新词可勾选）');
-        return;
-    }
+    if (checked.length === 0) { alert('请先勾选单词'); return; }
     var ids = [];
     checked.forEach(function(c) { ids.push(c.value); });
-    window.location.href = '{{ url_for("vocab.learn") }}?ids=' + ids.join(',');
+    window.location.href = '{{ url_for("vocab.learn") }}?ids=' + ids.join(',') + '&count=' + getCount();
+}
+function batchAction(action) {
+    var checked = document.querySelectorAll('.word-check:checked');
+    if (checked.length === 0) { alert('请先勾选单词'); return; }
+    var labels = {'delete':'删除','reset':'重置为新词','toggle':'切换状态'};
+    if (!confirm('确定' + labels[action] + '所选 ' + checked.length + ' 个单词？')) return;
+    var route = action === 'toggle' ? 'toggle' : (action === 'delete' ? 'delete' : 'reset');
+    var done = 0;
+    checked.forEach(function(c) {
+        var id = c.value;
+        fetch('/vocab/' + id + '/' + route, {method:'POST'})
+        .then(function() { done++; if (done >= checked.length) location.reload(); });
+    });
 }
 </script>
 {% endblock %}

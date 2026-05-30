@@ -18,6 +18,7 @@
 
                 <form method="POST" novalidate>
                     {{ form.hidden_tag() }}
+                    <input type="hidden" name="login_mode" id="login-mode-input" value="user">
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">{{ form.username.label.text }}</label>
@@ -52,6 +53,7 @@
 <script>
 function switchMode() {
     var admin = document.getElementById('mode-admin').checked;
+    document.getElementById('login-mode-input').value = admin ? 'admin' : 'user';
     var btn = document.getElementById('login-btn');
     if (admin) {
         btn.className = 'btn btn-warning w-100 fw-bold';

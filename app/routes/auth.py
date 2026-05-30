@@ -16,6 +16,10 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
+        login_mode = request.form.get("login_mode", "user")
+        if user and user.is_admin and login_mode == "user":
+            flash("该账号为管理员账号，请选择「管理员」模式登录。", "warning")
+            return render_template("auth/login.html", form=form)
         if user is None or not user.check_password(form.password.data):
             flash("用户名或密码错误，请重试。", "danger")
             return render_template("auth/login.html", form=form)
@@ -44,7 +48,12 @@ def register():
         )
         user.set_password(form.password.data)
         db.session.add(user)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            flash("该用户名已被注册，请换一个。", "warning")
+            return render_template("auth/register.html", form=form)
 
         flash("注册成功！欢迎加入考研学习系统。", "success")
         login_user(user)
@@ -86,5 +95,6 @@ def logout():
         User.query.filter_by(id=uid).delete()
         db.session.commit()
     else:
-        flash("已成功退出登录。", "info")
+        from flask import session
+        session["show_logout_msg"] = True
     return redirect(url_for("main.index"))

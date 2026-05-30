@@ -135,18 +135,23 @@ def add_word():
 @vocab_bp.route("/vocab/learn")
 @login_required
 def learn():
-    """学习新词 — 每轮N个词，不认识的轮完再来"""
+    """统一学习卡片：认识/不认识，最终全部认识才算完成"""
     from flask import session as flask_session
 
-    count = request.args.get("count", type=int) or flask_session.get("learn_count") or 10
+    # 设置每次学几个
+    count = request.args.get("count", type=int)
+    if count:
+        flask_session["learn_count"] = count
+
+    count = flask_session.get("learn_count", 10)
     pool = flask_session.get("learn_pool", [])
     retry = flask_session.get("learn_retry", [])
+    done = flask_session.get("learn_done", 0)
 
-    # 用户自选词 / 从新词池随机取
-    selected = request.args.get("ids", "")
-    if not pool:
+    # 初始化
+    if not pool and not retry and not done:
+        selected = request.args.get("ids", "")
         if selected:
-            # 用户从列表页勾选的词
             ids = [int(x) for x in selected.split(",") if x.strip().isdigit()]
             new_words = VocabularyWord.query.filter(
                 VocabularyWord.user_id == current_user.id,
@@ -154,94 +159,82 @@ def learn():
                 VocabularyWord.review_stage == -1,
             ).all()
         else:
-            # 随机取N个新词
             new_words = VocabularyWord.query.filter_by(
                 user_id=current_user.id, review_stage=-1
             ).order_by(db.func.random()).limit(count).all()
 
-        if not new_words and not retry:
+        if not new_words:
             return render_template("vocab/learn_empty.html", counts=_counts())
 
-        if new_words:
-            pool = [w.id for w in new_words]
-        retry = []
+        pool = [w.id for w in new_words]
         flask_session["learn_pool"] = pool
-        flask_session["learn_retry"] = retry
-        flask_session["learn_count"] = count
+        flask_session["learn_retry"] = []
+        flask_session["learn_done"] = 0
 
-    # 当前要展示的词：优先从 pool 取（还没轮到的），pool 空了从 retry 取
+    # 获取当前词
+    word = None
     if pool:
-        current_id = pool.pop(0)
+        word = VocabularyWord.query.get(pool.pop(0))
     elif retry:
-        # 本轮结束，不认识的词进入下一轮
         pool = list(retry)
         retry = []
-        current_id = pool.pop(0)
-        flash(f"本轮结束！{len(pool) + 1} 个词再来一遍。", "warning")
+        flask_session["learn_retry"] = []
+        word = VocabularyWord.query.get(pool.pop(0))
     else:
-        # 全部学完
+        # 全部完成
         flask_session.pop("learn_pool", None)
         flask_session.pop("learn_retry", None)
-        return render_template("vocab/learn_empty.html", counts=_counts())
+        flask_session.pop("learn_done", None)
+        return render_template("vocab/learn_complete.html", counts=_counts(), total_done=done)
+
+    if not word:
+        return redirect(url_for("vocab.learn"))
 
     flask_session["learn_pool"] = pool
     flask_session["learn_retry"] = retry
 
-    word = VocabularyWord.query.get(current_id)
-    if not word:
-        return redirect(url_for("vocab.learn"))
-
-    # 本轮进度
-    total_new = VocabularyWord.query.filter_by(
-        user_id=current_user.id, review_stage=-1
-    ).count()
-    learned_this_session = VocabularyWord.query.filter(
-        VocabularyWord.user_id == current_user.id,
-        VocabularyWord.review_stage >= 0,
-    ).count()
-
-    return render_template(
-        "vocab/learn.html",
-        word=word,
-        counts=_counts(),
-        pool_count=len(pool),
-        retry_count=len(retry),
-        total_new=total_new,
-        count=count,
+    return render_template("vocab/learn.html",
+        word=word, counts=_counts(),
+        pool_count=len(pool), retry_count=len(retry),
+        total_new=VocabularyWord.query.filter_by(user_id=current_user.id, review_stage=-1).count(),
+        count=count, done=flask_session.get("learn_done", 0),
     )
 
 
 @vocab_bp.route("/vocab/<int:word_id>/learn", methods=["POST"])
 @login_required
 def learn_action(word_id):
-    from flask import session as flask_session
-
+    from flask import session as flask_session, jsonify
     word = VocabularyWord.query.get_or_404(word_id)
     if word.user_id != current_user.id:
-        flash("无权操作。", "danger")
-        return redirect(url_for("vocab.learn"))
+        return jsonify({"error": "无权操作"}), 403
 
     result = request.form.get("result", "wrong")
     retry = flask_session.get("learn_retry", [])
+    done = flask_session.get("learn_done", 0)
     from datetime import timedelta
 
-    # 认识：1天后复习；不认识：10分钟后复习
-    word.review_stage = 0
-    word.review_count = 0
-    word.is_mastered = False
-
     if result == "correct":
+        # 之前是不认识现在改认识 → 从retry移除 + done+1
+        if word.id in retry:
+            retry.remove(word.id)
+            flask_session["learn_retry"] = retry
+        word.review_stage = 0
+        word.review_count = 0
+        word.is_mastered = False
         word.next_review_at = datetime.utcnow() + timedelta(days=1)
+        done += 1
+        flask_session["learn_done"] = done
         db.session.commit()
-        flash(f'"{word.word}" → 认识！明天复习。', "success")
     else:
-        word.next_review_at = datetime.utcnow() + timedelta(minutes=10)
+        # 认识后记错了 → done-1 + 加入retry
+        if word.review_stage == 0 and word.id not in retry:
+            done = max(0, done - 1)
+            flask_session["learn_done"] = done
         retry.append(word.id)
         flask_session["learn_retry"] = retry
-        db.session.commit()
-        flash(f'"{word.word}" → {word.meaning}', "info")
 
-    return redirect(url_for("vocab.learn"))
+    return jsonify({"ok": True, "word": word.word, "meaning": word.meaning})
 
 
 # ---- 复习（选择题模式）----
@@ -310,6 +303,9 @@ def review_action(word_id):
         word.is_mastered = False
 
     db.session.commit()
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest" or request.form.get("_ajax"):
+        return jsonify({"ok": True, "word": word.word, "meaning": word.meaning})
 
     return render_template(
         "vocab/review_result.html",

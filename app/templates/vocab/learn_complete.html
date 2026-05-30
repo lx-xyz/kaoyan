@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}学习完成 — 考研学习系统{% endblock %}
+
+{% block content %}
+<div class="row"><div class="col-lg-6 mx-auto text-center py-5">
+    <i class="bi bi-check-circle-fill" style="font-size:4rem;color:#4CAF50;"></i>
+    <h4 class="mt-3" style="color:#4CAF50;">学习完成！</h4>
+    <p class="text-muted">本轮认识了 {{ total_done }} 个单词</p>
+    <div class="d-flex gap-2 justify-content-center mt-4">
+        <a href="{{ url_for('vocab.learn') }}" class="btn btn-primary"><i class="bi bi-arrow-repeat me-1"></i>继续学习</a>
+        <a href="{{ url_for('vocab.list_words') }}" class="btn btn-outline-secondary"><i class="bi bi-list me-1"></i>返回列表</a>
+    </div>
+</div></div>
+{% endblock %}

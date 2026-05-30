@@ -3,9 +3,7 @@ from datetime import datetime
 from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app
 from flask_login import login_required, current_user
 from app import db
-from app.models import SystemSetting
-
-from app.models import Subject
+from app.models import SystemSetting, UserImage, Subject
 
 settings_bp = Blueprint("settings", __name__)
 
@@ -31,7 +29,7 @@ def get_setting(key, default=""):
 def page():
     images = {}
     for key, default in IMAGE_KEYS.items():
-        user_val = current_user.dashboard_img if key == "dashboard_image" else current_user.timer_img
+        user_imgs = UserImage.query.filter_by(user_id=current_user.id, key=key).all()
         images[key] = {
             "value": user_imgs[0].url if user_imgs else get_setting(key, default),
             "label": IMAGE_LABELS.get(key, key),
@@ -86,10 +84,8 @@ def upload():
 
 
 def _set_user_img(key, value):
-    if key == "dashboard_image":
-        current_user.dashboard_img = value
-    elif key == "timer_image":
-        current_user.timer_img = value
+    from app.models import UserImage
+    db.session.add(UserImage(user_id=current_user.id, key=key, url=value))
     db.session.commit()
 
 

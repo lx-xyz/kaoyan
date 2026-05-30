@@ -14,8 +14,7 @@
                 <table class="table table-borderless mb-0">
                     <tr><td class="text-muted text-nowrap pe-4" style="width: 1%;">用户名</td><td class="fw-semibold">{{ current_user.username }}</td></tr>
                     <tr><td class="text-muted text-nowrap pe-4">昵称</td><td>{{ current_user.nickname or current_user.username }}</td></tr>
-                    <tr><td class="text-muted text-nowrap pe-4">邮箱</td><td>{{ current_user.email }}</td></tr>
-                    <tr><td class="text-muted text-nowrap pe-4">注册时间</td><td>{{ current_user.created_at.strftime('%Y-%m-%d') if current_user.created_at else '-' }}</td></tr>
+                                        <tr><td class="text-muted text-nowrap pe-4">注册时间</td><td>{{ current_user.created_at.strftime('%Y-%m-%d') if current_user.created_at else '-' }}</td></tr>
                 </table>
             </div>
         </div>

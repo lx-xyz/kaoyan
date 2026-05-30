@@ -15,7 +15,7 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">{{ form.username.label.text }}</label>
-                        {{ form.username(class="form-control", placeholder="2~64个字符") }}
+                        {{ form.username(class="form-control", placeholder="2~64个字符，支持中文英文数字") }}
                         {% if form.username.errors %}
                             <div class="text-danger mt-1" style="font-size: 0.85rem;">
                                 {% for e in form.username.errors %}{{ e }}{% endfor %}
@@ -25,7 +25,7 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">{{ form.password.label.text }}</label>
-                        {{ form.password(class="form-control", placeholder="至少6位密码") }}
+                        {{ form.password(class="form-control", placeholder="至少6位，支持字母数字符号") }}
                         {% if form.password.errors %}
                             <div class="text-danger mt-1" style="font-size: 0.85rem;">
                                 {% for e in form.password.errors %}{{ e }}{% endfor %}
@@ -35,7 +35,7 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">{{ form.confirm_password.label.text }}</label>
-                        {{ form.confirm_password(class="form-control", placeholder="再次输入密码") }}
+                        {{ form.confirm_password(class="form-control", placeholder="再次输入，两次需一致") }}
                         {% if form.confirm_password.errors %}
                             <div class="text-danger mt-1" style="font-size: 0.85rem;">
                                 {% for e in form.confirm_password.errors %}{{ e }}{% endfor %}
