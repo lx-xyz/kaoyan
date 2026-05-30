@@ -134,7 +134,7 @@ def upload_image():
         img.save(path, 'JPEG', quality=85)
     except:
         file.save(path)
-    url = f"/static/uploads/{name}"
+    url = f"/uploads/{name}"
     return jsonify({"url": url})
 
 
