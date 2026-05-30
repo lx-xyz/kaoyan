@@ -93,12 +93,19 @@ def _set_user_img(key, value):
 @login_required
 def reset():
     key = request.form.get("key")
-    if key == "dashboard_image":
+    img_id = request.form.get("id", type=int)
+    from app.models import UserImage
+    if img_id:
+        img = UserImage.query.get(img_id)
+        if img and img.user_id == current_user.id:
+            db.session.delete(img)
+            db.session.commit()
+            flash("图片已删除。", "info")
+    elif key in IMAGE_KEYS:
         current_user.dashboard_img = ""
-    elif key == "timer_image":
         current_user.timer_img = ""
-    db.session.commit()
-    flash(f"{IMAGE_LABELS.get(key, key)} 已恢复默认。", "info")
+        db.session.commit()
+        flash("已恢复默认。", "info")
     return redirect(url_for("settings.page"))
 
 
