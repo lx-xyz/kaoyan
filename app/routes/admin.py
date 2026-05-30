@@ -115,10 +115,16 @@ def hero_upload():
         _save_setting("hero_image", url_input)
         flash("Hero图已更新。", "success")
     elif file and file.filename:
-        filename = f"hero_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{file.filename}"
-        d = os.path.join(current_app.root_path, "static", "uploads", "settings")
+        filename = f"hero_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.jpg"
+        d = os.path.join(current_app.root_path, "static", "uploads")
         os.makedirs(d, exist_ok=True)
-        file.save(os.path.join(d, filename))
+        try:
+            from PIL import Image as PILImage
+            img = PILImage.open(file)
+            if img.mode in ('RGBA','P'): img = img.convert('RGB')
+            img.save(os.path.join(d, filename), 'JPEG', quality=85)
+        except:
+            file.save(os.path.join(d, filename))
         _save_setting("hero_image", f"/static/uploads/{filename}")
         flash("Hero图已上传。", "success")
     return redirect(url_for("admin.index"))
@@ -136,9 +142,16 @@ def default_images():
         img_url = url_input
         if file and file.filename:
             filename = f"dimg_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{file.filename}"
-            d = os.path.join(current_app.root_path, "static", "uploads", "settings")
+            filename = f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.jpg"
+            d = os.path.join(current_app.root_path, "static", "uploads")
             os.makedirs(d, exist_ok=True)
-            file.save(os.path.join(d, filename))
+            try:
+                from PIL import Image as PILImage
+                img = PILImage.open(file)
+                if img.mode in ('RGBA','P'): img = img.convert('RGB')
+                img.save(os.path.join(d, filename), 'JPEG', quality=85)
+            except:
+                file.save(os.path.join(d, filename))
             img_url = f"/static/uploads/{filename}"
         if img_url:
             db.session.add(DefaultImage(key=key, url=img_url))

@@ -122,13 +122,19 @@ def upload_image():
     file = request.files.get("image")
     if not file:
         return jsonify({"error": "未收到图片"}), 400
-    filename = f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{file.filename}"
-    # 保存到 static 目录下，直接通过 URL 访问
     import os as _os
+    from PIL import Image as PILImage
     upload_dir = _os.path.join(current_app.root_path, "static", "uploads")
     _os.makedirs(upload_dir, exist_ok=True)
-    file.save(_os.path.join(upload_dir, filename))
-    url = f"/static/uploads/{filename}"
+    name = f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.jpg"
+    path = _os.path.join(upload_dir, name)
+    try:
+        img = PILImage.open(file)
+        if img.mode in ('RGBA', 'P'): img = img.convert('RGB')
+        img.save(path, 'JPEG', quality=85)
+    except:
+        file.save(path)
+    url = f"/static/uploads/{name}"
     return jsonify({"url": url})
 
 

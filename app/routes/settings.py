@@ -73,7 +73,13 @@ def upload():
     filename = f"setting_{key}_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{file.filename}"
     upload_dir = os.path.join(current_app.root_path, "static", "uploads", "settings")
     os.makedirs(upload_dir, exist_ok=True)
-    file.save(os.path.join(upload_dir, filename))
+    try:
+        from PIL import Image as PILImage
+        img = PILImage.open(file)
+        if img.mode in ('RGBA','P'): img = img.convert('RGB')
+        img.save(os.path.join(upload_dir, f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.jpg"), 'JPEG', quality=85)
+    except:
+        file.save(os.path.join(upload_dir, filename))
     _set_user_img(key, f"/static/uploads/{filename}")
     flash(f"{IMAGE_LABELS.get(key, key)} 已上传。", "success")
     return redirect(url_for("settings.page"))
