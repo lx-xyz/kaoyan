@@ -124,7 +124,7 @@ def upload_image():
         return jsonify({"error": "未收到图片"}), 400
     import os as _os
     from PIL import Image as PILImage
-    upload_dir = _os.path.join(current_app.root_path, "static", "uploads")
+    upload_dir = current_app.config['UPLOAD_FOLDER']
     _os.makedirs(upload_dir, exist_ok=True)
     name = f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.jpg"
     path = _os.path.join(upload_dir, name)

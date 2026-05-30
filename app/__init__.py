@@ -55,6 +55,12 @@ def create_app(config_class=Config):
     app.register_blueprint(settings_bp)
     app.register_blueprint(admin_bp)
 
+    # 上传文件URL路由（exe运行时uploads在外部目录）
+    from flask import send_from_directory
+    @app.route('/static/uploads/<path:filename>')
+    def uploaded_file(filename):
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
     return app
 
 
