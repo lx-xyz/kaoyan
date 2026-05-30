@@ -74,8 +74,17 @@ def guest_login():
 @login_required
 def logout():
     is_guest = current_user.is_guest
+    uid = current_user.id
     logout_user()
-    if not is_guest:
-        from flask import session
-        session["show_logout_msg"] = True
+    if is_guest:
+        from app.models import (ExamRecord, MistakeItem, VocabularyWord,
+            Note, StudySession, ImportLog, UserImage, HiddenSubject, Subject, User)
+        for m in [ExamRecord, MistakeItem, VocabularyWord, Note,
+                  StudySession, ImportLog, UserImage, HiddenSubject]:
+            m.query.filter_by(user_id=uid).delete()
+        Subject.query.filter_by(user_id=uid).delete()
+        User.query.filter_by(id=uid).delete()
+        db.session.commit()
+    else:
+        flash("已成功退出登录。", "info")
     return redirect(url_for("main.index"))
