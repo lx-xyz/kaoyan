@@ -13,12 +13,9 @@ from app import create_app, db
 from app.models import Subject
 
 SUBJECTS = [
-    {"name": "英语二", "code": "english", "color": "#FF6B6B", "sort_order": 1},
-    {"name": "数学二", "code": "math", "color": "#4ECDC4", "sort_order": 2},
-    {"name": "数据结构", "code": "ds", "color": "#45B7D1", "sort_order": 3},
-    {"name": "计算机组成原理", "code": "co", "color": "#FF8A65", "sort_order": 4},
-    {"name": "操作系统", "code": "os", "color": "#9575CD", "sort_order": 5},
-    {"name": "计算机网络", "code": "cn", "color": "#4DB6AC", "sort_order": 6},
+    {"name": "数学", "code": "math", "color": "#4ECDC4", "sort_order": 1},
+    {"name": "英语", "code": "english", "color": "#FF6B6B", "sort_order": 2},
+    {"name": "政治", "code": "politics", "color": "#E8734A", "sort_order": 3},
 ]
 
 
