@@ -13,7 +13,8 @@ datas = [
     ('migrations', 'migrations'),
     ('scripts', 'scripts'),
     ('config.py', '.'),
-    ('requirements.txt', '.'),
+    ('data/kaoyan.db', 'data'),
+    ('uploads', 'uploads'),
 ]
 
 # 创建data目录（PyInstaller无法打包空目录，在代码里自动创建）
